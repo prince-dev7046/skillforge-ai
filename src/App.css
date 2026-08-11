@@ -59,3 +59,52 @@
   font-weight: 600;
 }
 
+/* ============================= */
+/* Skill Gap Score */
+/* ============================= */
+
+.skill-score {
+  margin-top: 30px;
+  padding: 25px;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.score-number {
+  font-size: 48px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 18px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4f46e5;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.skill-score p {
+  margin-top: 12px;
+  color: #666;
+}
+
+.skill-status {
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+}
+
+.skill-status p {
+  font-size: 18px;
+  font-weight: 600;
+}

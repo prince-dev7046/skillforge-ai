@@ -58,6 +58,12 @@ function Resume() {
 
       setExtractedSkills(skills);
       setExtractedText(text);
+
+      localStorage.setItem(
+        "resumeSkills",
+        JSON.stringify(skills)
+      );
+      
     } catch (error) {
       console.error("Resume analysis failed:", error);
       alert("Could not analyze the resume.");
@@ -65,6 +71,7 @@ function Resume() {
       setIsAnalyzing(false);
     }
   };
+
 
   return (
     <div className="resume-page">
@@ -159,21 +166,27 @@ function Resume() {
 
       {Object.keys(extractedSkills).length > 0 && (
         <div className="skills-section">
+
           <h2>Detected Skills</h2>
 
           {Object.entries(extractedSkills).map(([category, skills]) => (
             <div key={category} className="skill-category">
+
               <h3>{category}</h3>
 
               <div className="skill-list">
+
                 {skills.map((skill) => (
                   <span key={skill} className="skill-tag">
                     {skill}
                   </span>
                 ))}
+
               </div>
+
             </div>
           ))}
+
         </div>
       )}
 
