@@ -182,6 +182,10 @@ function SkillGap() {
   );
 
   useEffect(() => {
+    localStorage.setItem("targetRole", selectedRole);
+  }, [selectedRole]);
+
+  useEffect(() => {
     const savedSkills = localStorage.getItem("resumeSkills");
 
     if (savedSkills) {
@@ -214,6 +218,14 @@ function SkillGap() {
         (resumeSkill) =>
           resumeSkill.toLowerCase() === skill.toLowerCase()
       )
+  );
+
+  localStorage.setItem(
+    "skillGap",
+    JSON.stringify({
+      matchedSkills,
+      missingSkills,
+    })
   );
 
   const matchPercentage =

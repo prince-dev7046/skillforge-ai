@@ -68,6 +68,11 @@ function App() {
                 element={<Progress />}
               />
 
+              <Route 
+                path="/roadmap" 
+                element={<Roadmap />} 
+              />
+
             </Routes>
 
           </main>
