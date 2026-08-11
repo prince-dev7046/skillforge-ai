@@ -246,6 +246,14 @@ function Roadmap() {
       ? Math.round((completedCount / roadmap.length) * 100)
       : 0;
 
+  const inProgressCount = roadmap.filter(
+    (item) => progress[item.skill] === "In Progress"
+  ).length;
+
+  const notStartedCount = roadmap.filter(
+    (item) => !progress[item.skill]
+  ).length;
+
   return (
     <div className="roadmap-page">
 
@@ -263,6 +271,42 @@ function Roadmap() {
         </p>
       ) : (
         <>
+
+          {/* Roadmap Summary */}
+          <div className="roadmap-summary">
+
+            <h2>📚 Your Learning Summary</h2>
+
+            <div className="summary-grid">
+
+              <div className="summary-card">
+                <span className="summary-icon">📚</span>
+                <h3>{roadmap.length}</h3>
+                <p>Total Skills</p>
+              </div>
+
+              <div className="summary-card">
+                <span className="summary-icon">✅</span>
+                <h3>{completedCount}</h3>
+                <p>Completed</p>
+              </div>
+
+              <div className="summary-card">
+                <span className="summary-icon">🔄</span>
+                <h3>{inProgressCount}</h3>
+                <p>In Progress</p>
+              </div>
+
+              <div className="summary-card">
+                <span className="summary-icon">⏳</span>
+                <h3>{notStartedCount}</h3>
+                <p>Not Started</p>
+              </div>
+
+            </div>
+
+          </div>
+
           {/* Overall Progress Section */}
           <div className="roadmap-progress">
 

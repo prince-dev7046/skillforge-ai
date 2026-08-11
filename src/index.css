@@ -969,3 +969,83 @@ a {
   }
 
 }
+
+/* =================================
+   F5 - LEARNING SUMMARY
+================================= */
+
+.roadmap-summary {
+  width: 90%;
+  max-width: 1100px;
+  margin: 30px auto 20px;
+  padding: 25px;
+  box-sizing: border-box;
+
+  background: white;
+  border-radius: 16px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.roadmap-summary h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+
+/* Summary cards */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.summary-card {
+  padding: 20px;
+  text-align: center;
+
+  background: #f8fafc;
+
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+
+  transition: transform 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+}
+
+.summary-icon {
+  font-size: 28px;
+}
+
+.summary-card h3 {
+  margin: 8px 0 3px;
+  font-size: 28px;
+}
+
+.summary-card p {
+  margin: 0;
+  font-size: 14px;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 450px) {
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
