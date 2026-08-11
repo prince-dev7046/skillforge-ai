@@ -181,6 +181,10 @@ function SkillGap() {
     "Full Stack Developer"
   );
 
+  const [aiResult, setAiResult] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
   useEffect(() => {
     localStorage.setItem("targetRole", selectedRole);
   }, [selectedRole]);
@@ -247,6 +251,41 @@ function SkillGap() {
     return "Needs Improvement";
   };
 
+  const analyzeWithAI = async () => {
+    try {
+      setAiLoading(true);
+      setAiError("");
+      setAiResult(null);
+
+      const response = await fetch(
+        "http://localhost:5000/api/ai/skill-gap",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resumeSkills,
+            targetRole: selectedRole,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "AI analysis failed");
+      }
+
+      setAiResult(data);
+    } catch (error) {
+      console.error("AI Skill Gap Error:", error);
+      setAiError(error.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="skill-gap-page">
 
@@ -291,7 +330,7 @@ function SkillGap() {
             style={{
               width: `${matchPercentage}%`,
             }}
-          ></div>
+          ></div>getStatus()
 
         </div>
 
@@ -428,7 +467,48 @@ function SkillGap() {
 
         </div>
       )}
+      <div className="ai-analysis-section">
+        <h2>🤖 AI Skill Gap Analysis</h2>
 
+        <p>
+          Get a personalized skill-gap analysis powered by Gemini AI.
+        </p>
+
+        <button
+          onClick={analyzeWithAI}
+          disabled={aiLoading}
+          className="ai-analysis-button"
+        >
+          {aiLoading ? "Analyzing..." : "✨ Analyze with AI"}
+        </button>
+
+        {aiError && (
+          <p className="ai-error">
+            ❌ {aiError}
+          </p>
+        )}
+
+        {aiResult && (
+          <div className="ai-result">
+            <h3>🎯 AI Analysis</h3>
+
+            <p>
+              <strong>Target Role:</strong>{" "}
+              {aiResult.targetRole}
+            </p>
+
+            <p>
+              <strong>Skill Match:</strong>{" "}
+              {aiResult.skillMatchPercentage}%
+            </p>
+
+            <p>
+              <strong>Recommendation:</strong>{" "}
+              {aiResult.recommendation}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
