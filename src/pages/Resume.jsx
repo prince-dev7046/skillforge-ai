@@ -1,8 +1,10 @@
+import "../App.css";
 import { useState } from "react";
 import { extractTextFromPDF } from "../utils/pdfExtractor";
 import { extractSkills } from "../utils/skillExtractor";
 
 function Resume() {
+  const [extractedSkills, setExtractedSkills] = useState({});
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [extractedText, setExtractedText] = useState("");
@@ -54,6 +56,7 @@ function Resume() {
       console.log("Extracted Skills:");
       console.log(skills);
 
+      setExtractedSkills(skills);
       setExtractedText(text);
     } catch (error) {
       console.error("Resume analysis failed:", error);
@@ -151,6 +154,26 @@ function Resume() {
           <h2>Extracted Resume Text</h2>
 
           <pre>{extractedText}</pre>
+        </div>
+      )}
+
+      {Object.keys(extractedSkills).length > 0 && (
+        <div className="skills-section">
+          <h2>Detected Skills</h2>
+
+          {Object.entries(extractedSkills).map(([category, skills]) => (
+            <div key={category} className="skill-category">
+              <h3>{category}</h3>
+
+              <div className="skill-list">
+                {skills.map((skill) => (
+                  <span key={skill} className="skill-tag">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

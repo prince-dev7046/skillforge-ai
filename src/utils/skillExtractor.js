@@ -79,9 +79,14 @@ export function extractSkills(text) {
     extractedSkills[category] = [];
 
     for (const skill of skillsDatabase[category]) {
-      if (normalizedText.includes(skill.toLowerCase())) {
+        const skillPattern = new RegExp(
+        `\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+        "i"
+        );
+
+        if (skillPattern.test(text)) {
         extractedSkills[category].push(skill);
-      }
+        }
     }
   }
 
