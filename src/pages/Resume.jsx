@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { extractTextFromPDF } from "../utils/pdfExtractor";
+import { extractSkills } from "../utils/skillExtractor";
 
 function Resume() {
   const [file, setFile] = useState(null);
@@ -46,6 +47,12 @@ function Resume() {
 
       console.log("Extracted Resume Text:");
       console.log(text);
+
+      // Extract skills from resume
+      const skills = extractSkills(text);
+
+      console.log("Extracted Skills:");
+      console.log(skills);
 
       setExtractedText(text);
     } catch (error) {
