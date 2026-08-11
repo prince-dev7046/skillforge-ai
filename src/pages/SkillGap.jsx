@@ -47,6 +47,134 @@ const roleSkills = {
   ],
 };
 
+const skillRecommendations = {
+  HTML: {
+    priority: "High",
+    description:
+      "Learn HTML to build the structure and content of modern web pages.",
+    topics: "Semantic HTML, forms, tables, accessibility",
+  },
+
+  CSS: {
+    priority: "High",
+    description:
+      "Learn CSS to create responsive and visually appealing web interfaces.",
+    topics: "Flexbox, Grid, responsive design, animations",
+  },
+
+  JavaScript: {
+    priority: "High",
+    description:
+      "JavaScript is essential for creating interactive web applications.",
+    topics: "ES6, DOM, async/await, APIs",
+  },
+
+  React: {
+    priority: "High",
+    description:
+      "React is widely used to build modern and component-based frontend applications.",
+    topics: "Components, Props, State, Hooks, React Router",
+  },
+
+  "Node.js": {
+    priority: "High",
+    description:
+      "Node.js allows you to build scalable backend applications using JavaScript.",
+    topics: "Modules, Express.js, REST APIs, asynchronous programming",
+  },
+
+  "Express.js": {
+    priority: "Medium",
+    description:
+      "Express.js is a popular Node.js framework for building backend APIs.",
+    topics: "Routes, middleware, controllers, REST APIs",
+  },
+
+  MongoDB: {
+    priority: "Medium",
+    description:
+      "MongoDB is a NoSQL database commonly used in modern web applications.",
+    topics: "Collections, documents, CRUD, queries, indexes",
+  },
+
+  SQL: {
+    priority: "High",
+    description:
+      "SQL is essential for working with relational databases and structured data.",
+    topics: "SELECT, JOIN, GROUP BY, subqueries, database design",
+  },
+
+  Git: {
+    priority: "Medium",
+    description:
+      "Git is essential for version control and collaborating on software projects.",
+    topics: "Commit, branch, merge, pull, push, GitHub",
+  },
+
+  Python: {
+    priority: "High",
+    description:
+      "Python is one of the most important programming languages for machine learning and data science.",
+    topics: "Functions, OOP, modules, virtual environments",
+  },
+
+  NumPy: {
+    priority: "High",
+    description:
+      "NumPy provides powerful tools for numerical computing and array operations.",
+    topics: "Arrays, indexing, broadcasting, linear algebra",
+  },
+
+  Pandas: {
+    priority: "High",
+    description:
+      "Pandas is essential for cleaning, transforming, and analyzing datasets.",
+    topics: "DataFrames, filtering, grouping, merging, data cleaning",
+  },
+
+  Matplotlib: {
+    priority: "Medium",
+    description:
+      "Matplotlib helps you visualize datasets and understand patterns in data.",
+    topics: "Plots, charts, subplots, customization",
+  },
+
+  "Scikit-learn": {
+    priority: "High",
+    description:
+      "Scikit-learn provides tools for building and evaluating machine learning models.",
+    topics: "Preprocessing, regression, classification, model evaluation",
+  },
+
+  "Machine Learning": {
+    priority: "High",
+    description:
+      "Machine learning is fundamental for developing predictive and intelligent applications.",
+    topics: "Supervised learning, unsupervised learning, model evaluation",
+  },
+
+  Statistics: {
+    priority: "High",
+    description:
+      "Statistics provides the mathematical foundation needed for data analysis and machine learning.",
+    topics: "Probability, distributions, hypothesis testing, correlation",
+  },
+
+  Java: {
+    priority: "High",
+    description:
+      "Java is widely used for backend development and enterprise applications.",
+    topics: "OOP, collections, exceptions, multithreading, Spring",
+  },
+
+  "REST API": {
+    priority: "High",
+    description:
+      "REST APIs allow frontend and backend applications to communicate with each other.",
+    topics: "HTTP methods, endpoints, JSON, status codes, authentication",
+  },
+};
+
 function SkillGap() {
   const [resumeSkills, setResumeSkills] = useState([]);
   const [selectedRole, setSelectedRole] = useState(
@@ -225,29 +353,68 @@ function SkillGap() {
 
       {/* Recommendations */}
 
-      {missingSkills.length > 0 && (
+      {/* Recommendations */}
 
+      {missingSkills.length > 0 && (
         <div className="recommendations">
 
           <h2>💡 Recommended Skills to Learn</h2>
 
           <p>
-            Focus on these skills to improve your match for{" "}
-            <strong>{selectedRole}</strong>:
+            Focus on these skills to improve your readiness for{" "}
+            <strong>{selectedRole}</strong>.
           </p>
 
-          <ul>
+          <div className="recommendation-list">
 
-            {missingSkills.map((skill) => (
-              <li key={skill}>
-                Learn <strong>{skill}</strong>
-              </li>
-            ))}
+            {missingSkills.map((skill) => {
 
-          </ul>
+              const recommendation = skillRecommendations[skill];
+
+              return (
+                <div
+                  className="recommendation-card"
+                  key={skill}
+                >
+
+                  <div className="recommendation-header">
+
+                    <h3>{skill}</h3>
+
+                    <span
+                      className={`priority ${recommendation?.priority
+                        ?.toLowerCase()
+                        .replace(" ", "-")}`}
+                    >
+                      {recommendation?.priority || "Medium"} Priority
+                    </span>
+
+                  </div>
+
+                  <p className="recommendation-description">
+                    {recommendation?.description ||
+                      `Learn ${skill} to improve your skills for the ${selectedRole} role.`}
+                  </p>
+
+                  <div className="learning-topics">
+
+                    <strong>What to learn:</strong>
+
+                    <span>
+                      {recommendation?.topics ||
+                        `Fundamentals and practical applications of ${skill}`}
+                    </span>
+
+                  </div>
+
+                </div>
+              );
+
+            })}
+
+          </div>
 
         </div>
-
       )}
 
     </div>
