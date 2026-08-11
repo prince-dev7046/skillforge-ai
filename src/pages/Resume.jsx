@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { extractTextFromPDF } from "../utils/pdfExtractor";
 
 function Resume() {
   const [file, setFile] = useState(null);
@@ -26,6 +27,25 @@ function Resume() {
 
     const droppedFile = event.dataTransfer.files[0];
     handleFile(droppedFile);
+  };
+
+  const handleAnalyze = async () => {
+  if (!file) {
+    alert("Please select a resume first.");
+    return;
+  }
+
+  try {
+    console.log("Starting PDF extraction...");
+
+    const text = await extractTextFromPDF(file);
+
+    console.log("Extracted Resume Text:");
+    console.log(text);
+  } catch (error) {
+      console.error("Resume analysis failed:", error);
+      alert("Could not analyze the resume.");
+   }
   };
 
   return (
@@ -100,7 +120,10 @@ function Resume() {
 
           </div>
 
-          <button className="analyze-btn">
+          <button
+            className="analyze-btn"
+            onClick={handleAnalyze}
+          >
             Analyze Resume
           </button>
 
