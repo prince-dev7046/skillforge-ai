@@ -4,6 +4,8 @@ import { extractTextFromPDF } from "../utils/pdfExtractor";
 function Resume() {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [extractedText, setExtractedText] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleFile = (selectedFile) => {
     if (!selectedFile) return;
@@ -30,22 +32,28 @@ function Resume() {
   };
 
   const handleAnalyze = async () => {
-  if (!file) {
-    alert("Please select a resume first.");
-    return;
-  }
+    if (!file) {
+      alert("Please select a resume first.");
+      return;
+    }
 
-  try {
-    console.log("Starting PDF extraction...");
+    try {
+      setIsAnalyzing(true);
 
-    const text = await extractTextFromPDF(file);
+      console.log("Starting PDF extraction...");
 
-    console.log("Extracted Resume Text:");
-    console.log(text);
-  } catch (error) {
+      const text = await extractTextFromPDF(file);
+
+      console.log("Extracted Resume Text:");
+      console.log(text);
+
+      setExtractedText(text);
+    } catch (error) {
       console.error("Resume analysis failed:", error);
       alert("Could not analyze the resume.");
-   }
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -123,10 +131,19 @@ function Resume() {
           <button
             className="analyze-btn"
             onClick={handleAnalyze}
+            disabled={isAnalyzing}
           >
-            Analyze Resume
+            {isAnalyzing ? "Analyzing..." : "Analyze Resume"}
           </button>
 
+        </div>
+      )}
+
+      {extractedText && (
+        <div className="extracted-text-box">
+          <h2>Extracted Resume Text</h2>
+
+          <pre>{extractedText}</pre>
         </div>
       )}
 
