@@ -2,7 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
+import Login from "./pages/Login";
 import Resume from "./pages/Resume";
 import SkillGap from "./pages/SkillGap";
 import Roadmap from "./pages/Roadmap";
@@ -27,10 +29,18 @@ function App() {
           <main className="main-content">
 
             <Routes>
+              <Route
+                path="/login"
+                element={<Login />}
+              />
 
               <Route
                 path="/dashboard"
-                element={<Dashboard />}
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
@@ -40,37 +50,56 @@ function App() {
 
               <Route
                 path="/resume"
-                element={<Resume />}
+                element={
+                  <ProtectedRoute>
+                    <Resume />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
                 path="/skill-gap"
-                element={<SkillGap />}
+                element={
+                  <ProtectedRoute>
+                    <SkillGap />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
                 path="/roadmap"
-                element={<Roadmap />}
+                element={
+                  <ProtectedRoute>
+                    <Roadmap />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
                 path="/projects"
-                element={<Projects />}
+                element={
+                  <ProtectedRoute>
+                    <Projects />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
                 path="/interview"
-                element={<Interview />}
+                element={
+                  <ProtectedRoute>
+                    <Interview />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
                 path="/progress"
-                element={<Progress />}
-              />
-
-              <Route 
-                path="/roadmap" 
-                element={<Roadmap />} 
+                element={
+                  <ProtectedRoute>
+                    <Progress />
+                  </ProtectedRoute>
+                }
               />
 
             </Routes>

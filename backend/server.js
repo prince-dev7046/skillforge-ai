@@ -1,13 +1,16 @@
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 const { analyzeSkillGap } = require("./services/aiService");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 // Test route
 app.get("/", (req, res) => {
@@ -42,6 +45,15 @@ app.post("/api/ai/skill-gap", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected successfully");
+
+    app.listen(5000, () => {
+      console.log("Server running on http://localhost:5000");
+    });
+  })
+  .catch((error) => {
+    console.error("MongoDB connection error:", error);
+  });
