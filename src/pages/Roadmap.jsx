@@ -4,40 +4,175 @@ function Roadmap() {
   const [roadmap, setRoadmap] = useState([]);
   const [targetRole, setTargetRole] = useState("");
   const [progress, setProgress] = useState({});
+  const [isAIPersonalized, setIsAIPersonalized] = useState(false);
 
   useEffect(() => {
     const savedRole = localStorage.getItem("targetRole");
     const savedSkillGap = localStorage.getItem("skillGap");
+    const savedAIAnalysis = localStorage.getItem("aiSkillAnalysis");
+    const savedProgress = localStorage.getItem("roadmapProgress");
 
     if (savedRole) {
       setTargetRole(savedRole);
     }
 
-    if (!savedSkillGap) {
+    if (savedProgress) {
+      try {
+        setProgress(JSON.parse(savedProgress));
+      } catch (error) {
+        console.error("Error reading roadmap progress:", error);
+        setProgress({});
+      }
+    }
+
+    if (!savedSkillGap && !savedAIAnalysis) {
       return;
     }
 
-    const skillGap = JSON.parse(savedSkillGap);
+    let skillGap = {};
+    let aiAnalysis = {};
 
-    const missingSkills = skillGap.missingSkills || [];
+    try {
+      if (savedSkillGap) {
+        skillGap = JSON.parse(savedSkillGap);
+      }
 
-    const roadmapData = missingSkills.map((skill, index) => {
-      const skillInfo = getSkillInfo(skill);
+      if (savedAIAnalysis) {
+        aiAnalysis = JSON.parse(savedAIAnalysis);
+      }
+    } catch (error) {
+      console.error("Error reading roadmap data:", error);
+      return;
+    }
+    /*
+      Priority 1:
+      Gemini AI Personalized Roadmap
 
-      return {
+      Gemini now generates the complete roadmap including:
+      - skill
+      - priority
+      - difficulty
+      - duration
+      - reason
+      - topics
+      - miniProject
+      - prerequisites
+    */
+
+    let roadmapData = [];
+
+    if (
+      Array.isArray(aiAnalysis.roadmap) &&
+      aiAnalysis.roadmap.length > 0
+    ) {
+      roadmapData = aiAnalysis.roadmap.map((item, index) => ({
         id: index + 1,
-        skill: skill,
-        difficulty: skillInfo.difficulty,
-        duration: skillInfo.duration,
-        topics: skillInfo.topics,
-        project: skillInfo.project,
-      };
-    });
+        skill: item.skill,
+        priority: item.priority || index + 1,
+        reason:
+          item.reason ||
+          `Learn ${item.skill} to improve your career readiness.`,
+        difficulty: item.difficulty || "Intermediate",
+        duration: item.duration || "1 week",
+        topics: Array.isArray(item.topics) ? item.topics : [],
+        project:
+          item.miniProject ||
+          `Build a project using ${item.skill}`,
+        prerequisites: Array.isArray(item.prerequisites)
+          ? item.prerequisites
+          : [],
+      }));
 
-    const savedProgress = localStorage.getItem("roadmapProgress");
+      setIsAIPersonalized(true);
+    }
 
-    if (savedProgress) {
-      setProgress(JSON.parse(savedProgress));
+    /*
+      Priority 2:
+      Gemini AI learning priorities
+    */
+
+    else if (
+      Array.isArray(aiAnalysis.learningPriorities) &&
+      aiAnalysis.learningPriorities.length > 0
+    ) {
+      roadmapData = aiAnalysis.learningPriorities.map((item, index) => {
+        const skillInfo = getSkillInfo(item.skill);
+
+        return {
+          id: index + 1,
+          skill: item.skill,
+          priority: item.priority || "Medium",
+          reason:
+            item.reason ||
+            `Learn ${item.skill} to improve your career readiness.`,
+          difficulty: skillInfo.difficulty,
+          duration: skillInfo.duration,
+          topics: skillInfo.topics,
+          project: skillInfo.project,
+          prerequisites: [],
+        };
+      });
+
+      setIsAIPersonalized(true);
+    }
+
+    /*
+      Priority 3:
+      Gemini AI missing skills
+    */
+
+    else if (
+      Array.isArray(aiAnalysis.missingSkills) &&
+      aiAnalysis.missingSkills.length > 0
+    ) {
+      roadmapData = aiAnalysis.missingSkills.map((skill, index) => {
+        const skillInfo = getSkillInfo(skill);
+
+        return {
+          id: index + 1,
+          skill,
+          priority: "Medium",
+          reason: `Learn ${skill} to improve your readiness for the ${
+            savedRole || "target"
+          } role.`,
+          difficulty: skillInfo.difficulty,
+          duration: skillInfo.duration,
+          topics: skillInfo.topics,
+          project: skillInfo.project,
+          prerequisites: [],
+        };
+      });
+
+      setIsAIPersonalized(true);
+    }
+
+    /*
+      Priority 4:
+      Existing F4 skill gap
+    */
+
+    else {
+      const missingSkills = skillGap.missingSkills || [];
+
+      roadmapData = missingSkills.map((skill, index) => {
+        const skillInfo = getSkillInfo(skill);
+
+        return {
+          id: index + 1,
+          skill,
+          priority: "Medium",
+          reason: `Learn ${skill} to improve your skills for the ${
+            savedRole || "target"
+          } role.`,
+          difficulty: skillInfo.difficulty,
+          duration: skillInfo.duration,
+          topics: skillInfo.topics,
+          project: skillInfo.project,
+          prerequisites: [],
+        };
+      });
+
+      setIsAIPersonalized(false);
     }
 
     setRoadmap(roadmapData);
@@ -96,6 +231,18 @@ function Roadmap() {
       },
 
       express: {
+        difficulty: "Intermediate",
+        duration: "1 week",
+        topics: [
+          "Express Fundamentals",
+          "Routing",
+          "Middleware",
+          "REST APIs",
+        ],
+        project: "Build an Express REST API",
+      },
+
+      "express.js": {
         difficulty: "Intermediate",
         duration: "1 week",
         topics: [
@@ -190,6 +337,102 @@ function Roadmap() {
         ],
         project: "Containerize a Web Application",
       },
+
+      "scikit-learn": {
+        difficulty: "Intermediate",
+        duration: "2 weeks",
+        topics: [
+          "Data Preprocessing",
+          "Regression",
+          "Classification",
+          "Model Evaluation",
+        ],
+        project: "Build a Machine Learning Prediction System",
+      },
+
+      "scikit learn": {
+        difficulty: "Intermediate",
+        duration: "2 weeks",
+        topics: [
+          "Data Preprocessing",
+          "Regression",
+          "Classification",
+          "Model Evaluation",
+        ],
+        project: "Build a Machine Learning Prediction System",
+      },
+
+      tensorflow: {
+        difficulty: "Advanced",
+        duration: "3 weeks",
+        topics: [
+          "TensorFlow Fundamentals",
+          "Neural Networks",
+          "Model Training",
+          "Model Evaluation",
+        ],
+        project: "Build a Neural Network Application",
+      },
+
+      pytorch: {
+        difficulty: "Advanced",
+        duration: "3 weeks",
+        topics: [
+          "PyTorch Fundamentals",
+          "Tensors",
+          "Neural Networks",
+          "Model Training",
+        ],
+        project: "Build a Deep Learning Image Classifier",
+      },
+
+      "machine learning": {
+        difficulty: "Intermediate",
+        duration: "3 weeks",
+        topics: [
+          "Supervised Learning",
+          "Unsupervised Learning",
+          "Feature Engineering",
+          "Model Evaluation",
+        ],
+        project: "Build an End-to-End ML Prediction System",
+      },
+
+      "feature engineering": {
+        difficulty: "Intermediate",
+        duration: "1 week",
+        topics: [
+          "Feature Selection",
+          "Feature Transformation",
+          "Encoding",
+          "Scaling",
+        ],
+        project: "Build a Feature Engineering Pipeline",
+      },
+
+      mlops: {
+        difficulty: "Advanced",
+        duration: "3 weeks",
+        topics: [
+          "ML Pipelines",
+          "Model Deployment",
+          "Model Monitoring",
+          "CI/CD for ML",
+        ],
+        project: "Deploy a Machine Learning Model",
+      },
+
+      "rest api": {
+        difficulty: "Intermediate",
+        duration: "1 week",
+        topics: [
+          "HTTP Methods",
+          "API Endpoints",
+          "Request and Response",
+          "JSON",
+        ],
+        project: "Build a REST API",
+      },
     };
 
     return (
@@ -235,12 +478,10 @@ function Roadmap() {
     );
   }
 
-  // Calculate completed roadmap items
   const completedCount = roadmap.filter(
     (item) => progress[item.skill] === "Completed"
   ).length;
 
-  // Calculate overall progress percentage
   const progressPercentage =
     roadmap.length > 0
       ? Math.round((completedCount / roadmap.length) * 100)
@@ -256,7 +497,6 @@ function Roadmap() {
 
   return (
     <div className="roadmap-page">
-
       <h1>Personalized Learning Roadmap</h1>
 
       {targetRole && (
@@ -265,20 +505,27 @@ function Roadmap() {
         </h2>
       )}
 
+      {isAIPersonalized && (
+        <div className="ai-roadmap-banner">
+          🤖 <strong>AI-Personalized Roadmap</strong>
+          <p>
+            This roadmap is generated using your Gemini AI career analysis
+            and personalized learning priorities.
+          </p>
+        </div>
+      )}
+
       {roadmap.length === 0 ? (
         <p>
           No skill gap data found. Please complete Skill Gap Analysis first.
         </p>
       ) : (
         <>
-
           {/* Roadmap Summary */}
           <div className="roadmap-summary">
-
             <h2>📚 Your Learning Summary</h2>
 
             <div className="summary-grid">
-
               <div className="summary-card">
                 <span className="summary-icon">📚</span>
                 <h3>{roadmap.length}</h3>
@@ -302,14 +549,11 @@ function Roadmap() {
                 <h3>{notStartedCount}</h3>
                 <p>Not Started</p>
               </div>
-
             </div>
-
           </div>
 
           {/* Overall Progress Section */}
           <div className="roadmap-progress">
-
             <h2>📈 Overall Roadmap Progress</h2>
 
             <div className="progress-info">
@@ -336,12 +580,10 @@ function Roadmap() {
                 Keep learning and complete the remaining skills.
               </p>
             )}
-
           </div>
 
           {/* Roadmap Cards */}
           <div className="roadmap-container">
-
             {roadmap.map((item) => (
               <div
                 className={`roadmap-card ${
@@ -351,14 +593,24 @@ function Roadmap() {
                 }`}
                 key={item.id}
               >
-
                 <div className="roadmap-number">
                   {item.id}
                 </div>
 
                 <div className="roadmap-content">
-
                   <h3>{item.skill}</h3>
+
+                  {/* AI Priority */}
+                  <p>
+                    🔥 <strong>AI Priority:</strong>{" "}
+                    {item.priority}
+                  </p>
+
+                  {/* AI Reason */}
+                  <p>
+                    🤖 <strong>Why you should learn it:</strong>{" "}
+                    {item.reason}
+                  </p>
 
                   <p>
                     📊 <strong>Difficulty:</strong>{" "}
@@ -385,11 +637,24 @@ function Roadmap() {
                     ))}
                   </ul>
 
+                  {item.prerequisites &&
+                    item.prerequisites.length > 0 && (
+                      <>
+                        <h4>🔗 Prerequisites</h4>
+
+                        <ul>
+                          {item.prerequisites.map((prerequisite, index) => (
+                            <li key={index}>
+                              {prerequisite}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+
                   <h4>💻 Mini Project</h4>
 
-                  <p>
-                    {item.project}
-                  </p>
+                  <p>{item.project}</p>
 
                   {/* Learning Buttons */}
                   {progress[item.skill] === "Completed" ? (
@@ -415,15 +680,12 @@ function Roadmap() {
                       )}
                     </>
                   )}
-
                 </div>
               </div>
             ))}
-
           </div>
         </>
       )}
-
     </div>
   );
 }

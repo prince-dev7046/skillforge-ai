@@ -187,6 +187,9 @@ function SkillGap() {
 
   useEffect(() => {
     localStorage.setItem("targetRole", selectedRole);
+
+    // Clear old AI analysis when target role changes
+    localStorage.removeItem("aiSkillAnalysis");
   }, [selectedRole]);
 
   useEffect(() => {
@@ -278,6 +281,8 @@ function SkillGap() {
       }
 
       setAiResult(data);
+      localStorage.setItem("aiSkillAnalysis", JSON.stringify(data));
+
     } catch (error) {
       console.error("AI Skill Gap Error:", error);
       setAiError(error.message);
@@ -330,7 +335,7 @@ function SkillGap() {
             style={{
               width: `${matchPercentage}%`,
             }}
-          ></div>getStatus()
+          ></div>
 
         </div>
 
@@ -490,22 +495,174 @@ function SkillGap() {
 
         {aiResult && (
           <div className="ai-result">
-            <h3>🎯 AI Analysis</h3>
 
-            <p>
-              <strong>Target Role:</strong>{" "}
-              {aiResult.targetRole}
-            </p>
+            {/* Header */}
+            <div className="ai-result-header">
+              <h3>🎯 AI Career Analysis</h3>
 
-            <p>
-              <strong>Skill Match:</strong>{" "}
-              {aiResult.skillMatchPercentage}%
-            </p>
+              <p>
+                <strong>Target Role:</strong>{" "}
+                {aiResult.targetRole}
+              </p>
+            </div>
 
-            <p>
-              <strong>Recommendation:</strong>{" "}
-              {aiResult.recommendation}
-            </p>
+            {/* Skill Match + Career Readiness */}
+            <div className="ai-summary-grid">
+
+              <div className="ai-summary-card">
+                <span className="ai-card-icon">📊</span>
+                <h4>Skill Match</h4>
+                <div className="ai-match-percentage">
+                  {aiResult.skillMatchPercentage}%
+                </div>
+
+                <div className="ai-progress-container">
+                  <div
+                    className="ai-progress-bar"
+                    style={{
+                      width: `${aiResult.skillMatchPercentage}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="ai-summary-card">
+                <span className="ai-card-icon">💼</span>
+                <h4>Career Readiness</h4>
+                <div className="ai-readiness">
+                  {aiResult.careerReadiness || "Developing"}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Overall Assessment */}
+            {aiResult.overallAssessment && (
+              <div className="ai-card ai-assessment">
+                <h3>🎯 Overall Assessment</h3>
+
+                <p>
+                  {aiResult.overallAssessment}
+                </p>
+              </div>
+            )}
+
+            {/* Matched Skills */}
+            {aiResult.matchedSkills?.length > 0 && (
+              <div className="ai-card">
+                <h3>✅ Your Strengths</h3>
+
+                <div className="ai-skill-list">
+                  {aiResult.matchedSkills.map((skill) => (
+                    <span
+                      className="ai-skill ai-skill-matched"
+                      key={skill}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Critical Gaps */}
+            {aiResult.criticalGaps?.length > 0 && (
+              <div className="ai-card">
+                <h3>⚠️ Critical Skill Gaps</h3>
+
+                <div className="ai-skill-list">
+                  {aiResult.criticalGaps.map((skill) => (
+                    <span
+                      className="ai-skill ai-skill-missing"
+                      key={skill}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Missing Skills */}
+            {aiResult.missingSkills?.length > 0 && (
+              <div className="ai-card">
+                <h3>📚 Skills You Should Learn</h3>
+
+                <div className="ai-skill-list">
+                  {aiResult.missingSkills.map((skill) => (
+                    <span
+                      className="ai-skill ai-skill-missing"
+                      key={skill}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Learning Priorities */}
+            {aiResult.learningPriorities?.length > 0 && (
+              <div className="ai-card">
+                <h3>🔥 Learning Priorities</h3>
+
+                <div className="learning-priority-list">
+                  {aiResult.learningPriorities.map((item, index) => (
+                    <div
+                      className="learning-priority-card"
+                      key={`${item.skill}-${index}`}
+                    >
+                      <div className="priority-number">
+                        {index + 1}
+                      </div>
+
+                      <div className="priority-content">
+                        <div className="priority-title-row">
+                          <h4>{item.skill}</h4>
+
+                          <span
+                            className={`ai-priority-badge ${item.priority
+                              ?.toLowerCase()
+                              .replace(" ", "-")}`}
+                          >
+                            {item.priority} Priority
+                          </span>
+                        </div>
+
+                        <p>{item.reason}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Personalized Recommendation */}
+            {aiResult.recommendation && (
+              <div className="ai-card ai-recommendation">
+                <h3>💡 Personalized Recommendation</h3>
+
+                <p>
+                  {aiResult.recommendation}
+                </p>
+              </div>
+            )}
+
+            {/* Next Steps */}
+            {aiResult.nextSteps?.length > 0 && (
+              <div className="ai-card">
+                <h3>🚀 Your Next Steps</h3>
+
+                <ol className="ai-next-steps">
+                  {aiResult.nextSteps.map((step, index) => (
+                    <li key={index}>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
           </div>
         )}
       </div>
