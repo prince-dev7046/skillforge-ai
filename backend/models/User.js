@@ -48,6 +48,21 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+
+    projects: {
+      type: mongoose.Schema.Types.Mixed,
+      default: [],
+    },
+
+    interviewHistory: {
+      type: mongoose.Schema.Types.Mixed,
+      default: [],
+    },
+
+    notifications: {
+      type: mongoose.Schema.Types.Mixed,
+      default: [],
+    },
   },
   {
     timestamps: true,

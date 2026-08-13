@@ -1,43 +1,38 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getProfile, getSkillForgeData, updateSkillForgeData } from "../services/api";
 
 function Navbar() {
   const navigate = useNavigate();
-
   const [user, setUser] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) return;
 
-        if (!token) {
-          return;
+        const profile = await getProfile();
+        setUser(profile);
+
+        const sfData = await getSkillForgeData();
+        if (Array.isArray(sfData.notifications)) {
+          setNotifications(sfData.notifications);
         }
-
-        const response = await fetch(
-          "http://localhost:5000/api/user/profile",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch profile");
-        }
-
-        setUser(data);
       } catch (error) {
-        console.error("Navbar Profile Error:", error);
+        console.error("Navbar fetch error:", error);
       }
     };
 
-    fetchProfile();
+    fetchData();
+
+    // Listen for custom events to refresh navbar
+    const handleRefresh = () => fetchData();
+    window.addEventListener("skillforge-refresh", handleRefresh);
+    return () => window.removeEventListener("skillforge-refresh", handleRefresh);
   }, []);
 
   const handleLogout = () => {
@@ -45,35 +40,102 @@ function Navbar() {
     navigate("/login");
   };
 
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllRead = async () => {
+    const updated = notifications.map((n) => ({ ...n, read: true }));
+    setNotifications(updated);
+    try {
+      await updateSkillForgeData({ notifications: updated });
+    } catch (err) {
+      console.error("Failed to mark notifications read:", err);
+    }
+  };
+
   return (
     <header className="navbar">
-      <div className="navbar-logo">
-        SkillForge <span>AI</span>
+      <div className="navbar-left">
+        <button
+          className="mobile-menu-btn"
+          onClick={() => {
+            setShowMobileMenu(!showMobileMenu);
+            window.dispatchEvent(new CustomEvent("toggle-sidebar", { detail: !showMobileMenu }));
+          }}
+        >
+          ☰
+        </button>
+
+        <Link to="/dashboard" className="navbar-logo">
+          SkillForge <span>AI</span>
+        </Link>
       </div>
 
       <div className="navbar-right">
-        <button className="notification-btn">🔔</button>
+        <div className="notification-wrapper">
+          <button
+            className="notification-btn"
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              if (!showNotifications && unreadCount > 0) {
+                markAllRead();
+              }
+            }}
+          >
+            🔔
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
+          </button>
 
-        <div className="profile">
+          {showNotifications && (
+            <div className="notification-dropdown">
+              <div className="notification-header">
+                <h4>Notifications</h4>
+                {notifications.length > 0 && (
+                  <button className="clear-notifications" onClick={markAllRead}>
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              <div className="notification-list">
+                {notifications.length === 0 ? (
+                  <p className="no-notifications">No notifications yet</p>
+                ) : (
+                  notifications.slice(0, 10).map((notif, idx) => (
+                    <div
+                      key={idx}
+                      className={`notification-item ${!notif.read ? "unread" : ""}`}
+                    >
+                      <span className="notification-icon">{notif.icon || "📢"}</span>
+                      <div>
+                        <p className="notification-text">{notif.message}</p>
+                        <span className="notification-time">{notif.time || ""}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Link to="/profile" className="profile">
           <div className="profile-avatar">
-            {user ? user.name.charAt(0).toUpperCase() : "P"}
+            {user ? user.name.charAt(0).toUpperCase() : "?"}
           </div>
 
           <div className="profile-info">
             <span className="profile-name">
               {user ? user.name : "Loading..."}
             </span>
-
             <span className="profile-role">
-              Student
+              {user?.targetRole || "Student"}
             </span>
           </div>
-        </div>
+        </Link>
 
-        <button
-          className="logout-btn"
-          onClick={handleLogout}
-        >
+        <button className="logout-btn" onClick={handleLogout}>
           Logout
         </button>
       </div>
