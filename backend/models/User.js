@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    // Basic user information
     name: {
       type: String,
       required: true,
@@ -19,6 +20,33 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+    },
+
+    // SkillForge AI data
+    targetRole: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    resumeSkills: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
+    skillGap: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
+    aiSkillAnalysis: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
+    roadmapProgress: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
   },
   {

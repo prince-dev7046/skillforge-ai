@@ -1,10 +1,55 @@
+import { useEffect, useState } from "react";
+
 function Dashboard() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.log("No authentication token found");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:5000/api/user/profile",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch profile");
+        }
+
+        setUser(data);
+      } catch (error) {
+        console.error("Profile Fetch Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
     <div className="dashboard">
 
       <div className="dashboard-header">
         <div>
-          <h1>Welcome back, Prince 👋</h1>
+          <h1>
+            Welcome back{user ? `, ${user.name}` : ""} 👋
+          </h1>
+
           <p>
             Here's your personalized career progress.
           </p>
