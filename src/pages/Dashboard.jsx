@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import StatCard from "../components/StatCard";
+import SkillCard from "../components/SkillCard";
+import ProgressCard from "../components/ProgressCard";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -43,138 +46,83 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
+      {/* Hero / Header Section */}
+      <div className="dashboard-hero neo-card card-yellow">
+        <div className="hero-content">
+          <div className="hero-text">
+            <span className="badge badge-pink">Personalized Dashboard</span>
+            <h1>
+              Welcome back{user ? `, ${user.name}` : ""} 👋
+            </h1>
+            <p>
+              Here's your real-time career readiness & skill growth progress.
+            </p>
+          </div>
 
-      <div className="dashboard-header">
-        <div>
-          <h1>
-            Welcome back{user ? `, ${user.name}` : ""} 👋
-          </h1>
-
-          <p>
-            Here's your personalized career progress.
-          </p>
+          <button className="btn btn-primary hero-btn">
+            🚀 Generate Roadmap
+          </button>
         </div>
-
-        <button className="primary-btn">
-          Generate Roadmap
-        </button>
       </div>
 
+      {/* Stats Summary Grid */}
       <div className="stats-grid">
+        <StatCard
+          title="Career Readiness"
+          value="74%"
+          subtitle="+8% this month"
+          variant="green"
+          icon="📈"
+        />
 
-        <div className="stat-card">
-          <p>Career Readiness</p>
-          <h2>74%</h2>
-          <span>+8% this month</span>
-        </div>
+        <StatCard
+          title="Skills"
+          value="12"
+          subtitle="8 mastered"
+          variant="cyan"
+          icon="⚡"
+        />
 
-        <div className="stat-card">
-          <p>Skills</p>
-          <h2>12</h2>
-          <span>8 mastered</span>
-        </div>
+        <StatCard
+          title="Roadmap Progress"
+          value="67%"
+          subtitle="8 of 12 modules"
+          variant="yellow"
+          icon="🗺️"
+        />
 
-        <div className="stat-card">
-          <p>Roadmap Progress</p>
-          <h2>67%</h2>
-          <span>8 of 12 modules</span>
-        </div>
-
-        <div className="stat-card">
-          <p>Projects</p>
-          <h2>4</h2>
-          <span>2 completed</span>
-        </div>
-
+        <StatCard
+          title="Projects"
+          value="4"
+          subtitle="2 completed"
+          variant="pink"
+          icon="💡"
+        />
       </div>
 
+      {/* Main Grid: Skills & Today's Goal */}
       <div className="dashboard-grid">
-
-        <div className="dashboard-card">
-          <h2>Skill Overview</h2>
-
-          <div className="skill">
-            <div>
-              <span>JavaScript</span>
-              <span>90%</span>
-            </div>
-
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: "90%" }}
-              ></div>
-            </div>
+        <div className="dashboard-card neo-card">
+          <div className="card-header-row">
+            <h2>Skill Overview</h2>
+            <span className="badge badge-cyan">Core Tech</span>
           </div>
 
-          <div className="skill">
-            <div>
-              <span>React</span>
-              <span>80%</span>
-            </div>
-
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: "80%" }}
-              ></div>
-            </div>
+          <div className="skills-list-container">
+            <SkillCard name="JavaScript" percentage={90} color="var(--neo-yellow)" />
+            <SkillCard name="React" percentage={80} color="var(--neo-cyan)" />
+            <SkillCard name="Node.js" percentage={35} color="var(--neo-pink)" />
+            <SkillCard name="MongoDB" percentage={70} color="var(--neo-green)" />
           </div>
-
-          <div className="skill">
-            <div>
-              <span>Node.js</span>
-              <span>35%</span>
-            </div>
-
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: "35%" }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="skill">
-            <div>
-              <span>MongoDB</span>
-              <span>70%</span>
-            </div>
-
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: "70%" }}
-              ></div>
-            </div>
-          </div>
-
         </div>
 
-        <div className="dashboard-card">
-
-          <h2>Today's Goal</h2>
-
-          <p className="goal-title">
-            Complete Express.js REST API
-          </p>
-
-          <div className="goal-progress">
-            <div
-              className="goal-progress-fill"
-              style={{ width: "65%" }}
-            ></div>
-          </div>
-
-          <div className="goal-footer">
-            <span>65% complete</span>
-            <span>2 hours</span>
-          </div>
-
-        </div>
-
+        <ProgressCard
+          title="Today's Goal"
+          goalTitle="Complete Express.js REST API"
+          percentage={65}
+          timeInfo="2 hours remaining"
+        />
       </div>
-
     </div>
   );
 }
