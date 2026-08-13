@@ -5,17 +5,28 @@ require("dotenv").config();
 
 const { analyzeSkillGap } = require("./services/aiService");
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 // Test route
 app.get("/", (req, res) => {
   res.json({
     message: "SkillForge AI Backend is running!"
+  });
+});
+
+// Protected test route
+app.get("/api/protected", authMiddleware, (req, res) => {
+  res.json({
+    message: "You are authenticated!",
+    userId: req.user.userId,
   });
 });
 
