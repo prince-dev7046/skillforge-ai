@@ -177,9 +177,7 @@ const skillRecommendations = {
 
 function SkillGap() {
   const [resumeSkills, setResumeSkills] = useState([]);
-  const [selectedRole, setSelectedRole] = useState(
-    "Full Stack Developer"
-  );
+  const [selectedRole, setSelectedRole] = useState("Full Stack Developer");
 
   const [aiResult, setAiResult] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -198,10 +196,7 @@ function SkillGap() {
     if (savedSkills) {
       try {
         const skillsObject = JSON.parse(savedSkills);
-
-        // Convert categorized object into one array
         const skillsArray = Object.values(skillsObject).flat();
-
         setResumeSkills(skillsArray);
       } catch (error) {
         console.error("Error reading resume skills:", error);
@@ -210,20 +205,18 @@ function SkillGap() {
     }
   }, []);
 
-  const requiredSkills = roleSkills[selectedRole];
+  const requiredSkills = roleSkills[selectedRole] || [];
 
   const matchedSkills = requiredSkills.filter((skill) =>
     resumeSkills.some(
-      (resumeSkill) =>
-        resumeSkill.toLowerCase() === skill.toLowerCase()
+      (resumeSkill) => resumeSkill.toLowerCase() === skill.toLowerCase()
     )
   );
 
   const missingSkills = requiredSkills.filter(
     (skill) =>
       !resumeSkills.some(
-        (resumeSkill) =>
-          resumeSkill.toLowerCase() === skill.toLowerCase()
+        (resumeSkill) => resumeSkill.toLowerCase() === skill.toLowerCase()
       )
   );
 
@@ -238,19 +231,17 @@ function SkillGap() {
   const matchPercentage =
     requiredSkills.length === 0
       ? 0
-      : Math.round(
-          (matchedSkills.length / requiredSkills.length) * 100
-        );
+      : Math.round((matchedSkills.length / requiredSkills.length) * 100);
 
-  const getStatus = () => {
-    if (matchPercentage >= 80) {
-      return "Strong Match";
-    }
+  const getStatusBadgeClass = () => {
+    if (matchPercentage >= 80) return "badge-green";
+    if (matchPercentage >= 50) return "badge-yellow";
+    return "badge-pink";
+  };
 
-    if (matchPercentage >= 50) {
-      return "Moderate Match";
-    }
-
+  const getStatusText = () => {
+    if (matchPercentage >= 80) return "Strong Match";
+    if (matchPercentage >= 50) return "Moderate Match";
     return "Needs Improvement";
   };
 
@@ -260,19 +251,16 @@ function SkillGap() {
       setAiError("");
       setAiResult(null);
 
-      const response = await fetch(
-        "http://localhost:5000/api/ai/skill-gap",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            resumeSkills,
-            targetRole: selectedRole,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/ai/skill-gap", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeSkills,
+          targetRole: selectedRole,
+        }),
+      });
 
       const data = await response.json();
 
@@ -282,7 +270,6 @@ function SkillGap() {
 
       setAiResult(data);
       localStorage.setItem("aiSkillAnalysis", JSON.stringify(data));
-
     } catch (error) {
       console.error("AI Skill Gap Error:", error);
       setAiError(error.message);
@@ -293,271 +280,228 @@ function SkillGap() {
 
   return (
     <div className="skill-gap-page">
+      {/* Header Banner */}
+      <div className="page-header neo-card card-yellow">
+        <div className="header-content">
+          <div>
+            <span className="badge badge-pink">Skill Matrix</span>
+            <h1>Skill Gap Analysis</h1>
+            <p>
+              Compare your current resume skills with industry requirements for your target career role.
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <h1>Skill Gap Analysis</h1>
-
-      <p>
-        Compare your current skills with the skills required
-        for your target career.
-      </p>
-
-      {/* Target Role */}
-
-      <div className="role-selector">
-
-        <label>Select Target Role:</label>
-
+      {/* Prominent Target Role Selector */}
+      <div className="role-selector-card neo-card card-cyan">
+        <label>TARGET CAREER ROLE</label>
         <select
           value={selectedRole}
           onChange={(e) => setSelectedRole(e.target.value)}
+          className="role-select-dropdown"
         >
           {Object.keys(roleSkills).map((role) => (
             <option key={role} value={role}>
-              {role}
+              🎯 {role}
             </option>
           ))}
         </select>
-
       </div>
 
-      {/* Match Score */}
+      {/* Match Score Hierarchy */}
+      <div className="score-display-card neo-card">
+        <span className="badge badge-cyan">Overall Readiness</span>
+        <h2 className="score-number">{matchPercentage}%</h2>
+        <p className="text-muted">Skill Match for {selectedRole}</p>
 
-      <div className="skill-score">
-
-        <h2>{matchPercentage}%</h2>
-
-        <p>Skill Match</p>
-
-        <div className="progress-container">
-
+        <div className="progress-container score-progress-bar">
           <div
-            className="progress-bar"
+            className="progress-fill"
             style={{
               width: `${matchPercentage}%`,
+              backgroundColor:
+                matchPercentage >= 80
+                  ? "var(--neo-green)"
+                  : matchPercentage >= 50
+                  ? "var(--neo-yellow)"
+                  : "var(--neo-pink)",
             }}
           ></div>
-
         </div>
 
-        <h3>{getStatus()}</h3>
-
+        <span className={`badge ${getStatusBadgeClass()}`}>
+          {getStatusText()}
+        </span>
       </div>
 
-      {/* Skills */}
-
-      <div className="skills-container">
-
+      {/* Matched vs Missing Skills Grid */}
+      <div className="skills-container grid-2">
         {/* Matched Skills */}
-
-        <div className="skill-section">
-
-          <h2>✅ Matched Skills</h2>
+        <div className="skill-section neo-card card-green">
+          <div className="card-header-row">
+            <h2>✅ Matched Skills</h2>
+            <span className="badge badge-green">{matchedSkills.length} Found</span>
+          </div>
 
           {matchedSkills.length > 0 ? (
-
             <div className="skill-list">
-
               {matchedSkills.map((skill) => (
-                <span
-                  className="skill matched"
-                  key={skill}
-                >
+                <span className="badge badge-green" key={skill}>
                   {skill}
                 </span>
               ))}
-
             </div>
-
           ) : (
-
-            <p>No matching skills found.</p>
-
+            <p className="text-muted">No matching skills found for this role.</p>
           )}
-
         </div>
 
         {/* Missing Skills */}
-
-        <div className="skill-section">
-
-          <h2>❌ Missing Skills</h2>
+        <div className="skill-section neo-card card-pink">
+          <div className="card-header-row">
+            <h2>❌ Missing Skills</h2>
+            <span className="badge badge-pink">{missingSkills.length} Needed</span>
+          </div>
 
           {missingSkills.length > 0 ? (
-
             <div className="skill-list">
-
               {missingSkills.map((skill) => (
-                <span
-                  className="skill missing"
-                  key={skill}
-                >
+                <span className="badge badge-pink" key={skill}>
                   {skill}
                 </span>
               ))}
-
             </div>
-
           ) : (
-
-            <p>No missing skills! 🎉</p>
-
+            <p className="text-muted">No missing skills! You're fully matched! 🎉</p>
           )}
-
         </div>
-
       </div>
 
       {/* Recommendations */}
-
-      {/* Recommendations */}
-
       {missingSkills.length > 0 && (
-        <div className="recommendations">
+        <div className="recommendations neo-card">
+          <div className="card-header-row">
+            <h2>💡 Recommended Skills to Learn</h2>
+            <span className="badge badge-yellow">Action Plan</span>
+          </div>
 
-          <h2>💡 Recommended Skills to Learn</h2>
-
-          <p>
-            Focus on these skills to improve your readiness for{" "}
-            <strong>{selectedRole}</strong>.
+          <p className="text-muted">
+            Focus on these key skills to improve your readiness for <strong>{selectedRole}</strong>.
           </p>
 
-          <div className="recommendation-list">
-
+          <div className="recommendation-grid">
             {missingSkills.map((skill) => {
-
               const recommendation = skillRecommendations[skill];
+              const priority = recommendation?.priority || "Medium";
+              const badgeClass =
+                priority === "High"
+                  ? "badge-pink"
+                  : priority === "Medium"
+                  ? "badge-yellow"
+                  : "badge-green";
 
               return (
-                <div
-                  className="recommendation-card"
-                  key={skill}
-                >
-
+                <div className="recommendation-card" key={skill}>
                   <div className="recommendation-header">
-
                     <h3>{skill}</h3>
-
-                    <span
-                      className={`priority ${recommendation?.priority
-                        ?.toLowerCase()
-                        .replace(" ", "-")}`}
-                    >
-                      {recommendation?.priority || "Medium"} Priority
+                    <span className={`badge ${badgeClass}`}>
+                      {priority} Priority
                     </span>
-
                   </div>
 
-                  <p className="recommendation-description">
+                  <p className="text-muted">
                     {recommendation?.description ||
-                      `Learn ${skill} to improve your skills for the ${selectedRole} role.`}
+                      `Learn ${skill} to improve your qualification for the ${selectedRole} position.`}
                   </p>
 
-                  <div className="learning-topics">
-
-                    <strong>What to learn:</strong>
-
-                    <span>
+                  <div className="learning-topics-box">
+                    <strong>📌 Topics to Cover:</strong>{" "}
+                    <span className="text-muted">
                       {recommendation?.topics ||
                         `Fundamentals and practical applications of ${skill}`}
                     </span>
-
                   </div>
-
                 </div>
               );
-
             })}
-
           </div>
-
         </div>
       )}
-      <div className="ai-analysis-section">
-        <h2>🤖 AI Skill Gap Analysis</h2>
 
-        <p>
-          Get a personalized skill-gap analysis powered by Gemini AI.
+      {/* Visually Distinct Gemini AI Analysis Section */}
+      <div className="ai-section-box neo-card card-yellow">
+        <div className="ai-header-row">
+          <div>
+            <span className="badge badge-pink">AI Powered</span>
+            <h2>🤖 Gemini AI Skill Analysis</h2>
+          </div>
+        </div>
+
+        <p className="text-muted" style={{ marginBottom: "var(--space-md)" }}>
+          Get a personalized career readiness & skill gap analysis powered by Google Gemini.
         </p>
 
         <button
           onClick={analyzeWithAI}
           disabled={aiLoading}
-          className="ai-analysis-button"
+          className="btn btn-primary"
         >
-          {aiLoading ? "Analyzing..." : "✨ Analyze with AI"}
+          {aiLoading ? "🔄 Analyzing with AI..." : "✨ Run AI Skill Analysis"}
         </button>
 
         {aiError && (
-          <p className="ai-error">
+          <div className="badge badge-pink" style={{ marginTop: "var(--space-md)", display: "block" }}>
             ❌ {aiError}
-          </p>
+          </div>
         )}
 
         {aiResult && (
-          <div className="ai-result">
-
-            {/* Header */}
-            <div className="ai-result-header">
+          <div className="ai-result" style={{ marginTop: "var(--space-xl)" }}>
+            <div className="card-header-row">
               <h3>🎯 AI Career Analysis</h3>
-
-              <p>
-                <strong>Target Role:</strong>{" "}
-                {aiResult.targetRole}
-              </p>
+              <span className="badge badge-cyan">Target: {aiResult.targetRole}</span>
             </div>
 
-            {/* Skill Match + Career Readiness */}
-            <div className="ai-summary-grid">
-
-              <div className="ai-summary-card">
-                <span className="ai-card-icon">📊</span>
-                <h4>Skill Match</h4>
-                <div className="ai-match-percentage">
-                  {aiResult.skillMatchPercentage}%
-                </div>
-
-                <div className="ai-progress-container">
+            {/* AI Summary Grid */}
+            <div className="grid-2" style={{ gap: "var(--space-md)", marginBottom: "var(--space-lg)" }}>
+              <div className="neo-card card-cyan">
+                <span className="badge badge-yellow">📊 Match Score</span>
+                <div className="score-number">{aiResult.skillMatchPercentage}%</div>
+                <div className="progress-container">
                   <div
-                    className="ai-progress-bar"
+                    className="progress-fill"
                     style={{
                       width: `${aiResult.skillMatchPercentage}%`,
+                      backgroundColor: "var(--neo-yellow)",
                     }}
                   ></div>
                 </div>
               </div>
 
-              <div className="ai-summary-card">
-                <span className="ai-card-icon">💼</span>
-                <h4>Career Readiness</h4>
-                <div className="ai-readiness">
+              <div className="neo-card card-green">
+                <span className="badge badge-green">💼 Readiness Level</span>
+                <h3 style={{ marginTop: "var(--space-sm)", fontSize: "24px" }}>
                   {aiResult.careerReadiness || "Developing"}
-                </div>
+                </h3>
               </div>
-
             </div>
 
             {/* Overall Assessment */}
             {aiResult.overallAssessment && (
-              <div className="ai-card ai-assessment">
-                <h3>🎯 Overall Assessment</h3>
-
-                <p>
-                  {aiResult.overallAssessment}
-                </p>
+              <div className="neo-card" style={{ marginBottom: "var(--space-md)" }}>
+                <h4>🎯 Overall Assessment</h4>
+                <p className="text-muted">{aiResult.overallAssessment}</p>
               </div>
             )}
 
-            {/* Matched Skills */}
+            {/* Strengths & Critical Gaps */}
             {aiResult.matchedSkills?.length > 0 && (
-              <div className="ai-card">
-                <h3>✅ Your Strengths</h3>
-
-                <div className="ai-skill-list">
+              <div className="neo-card card-green" style={{ marginBottom: "var(--space-md)" }}>
+                <h4>✅ Your Strengths</h4>
+                <div className="skill-list" style={{ marginTop: "var(--space-xs)" }}>
                   {aiResult.matchedSkills.map((skill) => (
-                    <span
-                      className="ai-skill ai-skill-matched"
-                      key={skill}
-                    >
+                    <span className="badge badge-green" key={skill}>
                       {skill}
                     </span>
                   ))}
@@ -565,35 +509,12 @@ function SkillGap() {
               </div>
             )}
 
-            {/* Critical Gaps */}
             {aiResult.criticalGaps?.length > 0 && (
-              <div className="ai-card">
-                <h3>⚠️ Critical Skill Gaps</h3>
-
-                <div className="ai-skill-list">
+              <div className="neo-card card-pink" style={{ marginBottom: "var(--space-md)" }}>
+                <h4>⚠️ Critical Skill Gaps</h4>
+                <div className="skill-list" style={{ marginTop: "var(--space-xs)" }}>
                   {aiResult.criticalGaps.map((skill) => (
-                    <span
-                      className="ai-skill ai-skill-missing"
-                      key={skill}
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Missing Skills */}
-            {aiResult.missingSkills?.length > 0 && (
-              <div className="ai-card">
-                <h3>📚 Skills You Should Learn</h3>
-
-                <div className="ai-skill-list">
-                  {aiResult.missingSkills.map((skill) => (
-                    <span
-                      className="ai-skill ai-skill-missing"
-                      key={skill}
-                    >
+                    <span className="badge badge-pink" key={skill}>
                       {skill}
                     </span>
                   ))}
@@ -603,33 +524,30 @@ function SkillGap() {
 
             {/* Learning Priorities */}
             {aiResult.learningPriorities?.length > 0 && (
-              <div className="ai-card">
-                <h3>🔥 Learning Priorities</h3>
-
-                <div className="learning-priority-list">
+              <div className="neo-card" style={{ marginBottom: "var(--space-md)" }}>
+                <h4>🔥 Learning Priorities</h4>
+                <div style={{ marginTop: "var(--space-sm)" }}>
                   {aiResult.learningPriorities.map((item, index) => (
-                    <div
-                      className="learning-priority-card"
-                      key={`${item.skill}-${index}`}
-                    >
-                      <div className="priority-number">
-                        {index + 1}
-                      </div>
-
-                      <div className="priority-content">
-                        <div className="priority-title-row">
-                          <h4>{item.skill}</h4>
-
+                    <div className="priority-item-card" key={`${item.skill}-${index}`}>
+                      <div className="priority-number-badge">{index + 1}</div>
+                      <div>
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                          <strong style={{ fontSize: "16px" }}>{item.skill}</strong>
                           <span
-                            className={`ai-priority-badge ${item.priority
-                              ?.toLowerCase()
-                              .replace(" ", "-")}`}
+                            className={`badge ${
+                              item.priority === "High"
+                                ? "badge-pink"
+                                : item.priority === "Medium"
+                                ? "badge-yellow"
+                                : "badge-green"
+                            }`}
                           >
                             {item.priority} Priority
                           </span>
                         </div>
-
-                        <p>{item.reason}</p>
+                        <p className="text-muted" style={{ marginTop: "4px" }}>
+                          {item.reason}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -637,32 +555,26 @@ function SkillGap() {
               </div>
             )}
 
-            {/* Personalized Recommendation */}
+            {/* Recommendation & Next Steps */}
             {aiResult.recommendation && (
-              <div className="ai-card ai-recommendation">
-                <h3>💡 Personalized Recommendation</h3>
-
-                <p>
-                  {aiResult.recommendation}
-                </p>
+              <div className="neo-card card-yellow" style={{ marginBottom: "var(--space-md)" }}>
+                <h4>💡 AI Recommendation</h4>
+                <p className="text-muted">{aiResult.recommendation}</p>
               </div>
             )}
 
-            {/* Next Steps */}
             {aiResult.nextSteps?.length > 0 && (
-              <div className="ai-card">
-                <h3>🚀 Your Next Steps</h3>
-
-                <ol className="ai-next-steps">
+              <div className="neo-card">
+                <h4>🚀 Recommended Next Steps</h4>
+                <ol style={{ paddingLeft: "var(--space-lg)", marginTop: "var(--space-xs)" }}>
                   {aiResult.nextSteps.map((step, index) => (
-                    <li key={index}>
+                    <li key={index} className="text-muted" style={{ marginBottom: "8px" }}>
                       {step}
                     </li>
                   ))}
                 </ol>
               </div>
             )}
-
           </div>
         )}
       </div>

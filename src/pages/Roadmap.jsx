@@ -44,20 +44,6 @@ function Roadmap() {
       console.error("Error reading roadmap data:", error);
       return;
     }
-    /*
-      Priority 1:
-      Gemini AI Personalized Roadmap
-
-      Gemini now generates the complete roadmap including:
-      - skill
-      - priority
-      - difficulty
-      - duration
-      - reason
-      - topics
-      - miniProject
-      - prerequisites
-    */
 
     let roadmapData = [];
 
@@ -84,14 +70,7 @@ function Roadmap() {
       }));
 
       setIsAIPersonalized(true);
-    }
-
-    /*
-      Priority 2:
-      Gemini AI learning priorities
-    */
-
-    else if (
+    } else if (
       Array.isArray(aiAnalysis.learningPriorities) &&
       aiAnalysis.learningPriorities.length > 0
     ) {
@@ -114,14 +93,7 @@ function Roadmap() {
       });
 
       setIsAIPersonalized(true);
-    }
-
-    /*
-      Priority 3:
-      Gemini AI missing skills
-    */
-
-    else if (
+    } else if (
       Array.isArray(aiAnalysis.missingSkills) &&
       aiAnalysis.missingSkills.length > 0
     ) {
@@ -144,14 +116,7 @@ function Roadmap() {
       });
 
       setIsAIPersonalized(true);
-    }
-
-    /*
-      Priority 4:
-      Existing F4 skill gap
-    */
-
-    else {
+    } else {
       const missingSkills = skillGap.missingSkills || [];
 
       roadmapData = missingSkills.map((skill, index) => {
@@ -421,18 +386,6 @@ function Roadmap() {
         ],
         project: "Deploy a Machine Learning Model",
       },
-
-      "rest api": {
-        difficulty: "Intermediate",
-        duration: "1 week",
-        topics: [
-          "HTTP Methods",
-          "API Endpoints",
-          "Request and Response",
-          "JSON",
-        ],
-        project: "Build a REST API",
-      },
     };
 
     return (
@@ -457,11 +410,7 @@ function Roadmap() {
     };
 
     setProgress(updatedProgress);
-
-    localStorage.setItem(
-      "roadmapProgress",
-      JSON.stringify(updatedProgress)
-    );
+    localStorage.setItem("roadmapProgress", JSON.stringify(updatedProgress));
   }
 
   function markCompleted(skill) {
@@ -471,11 +420,7 @@ function Roadmap() {
     };
 
     setProgress(updatedProgress);
-
-    localStorage.setItem(
-      "roadmapProgress",
-      JSON.stringify(updatedProgress)
-    );
+    localStorage.setItem("roadmapProgress", JSON.stringify(updatedProgress));
   }
 
   const completedCount = roadmap.filter(
@@ -497,192 +442,227 @@ function Roadmap() {
 
   return (
     <div className="roadmap-page">
-      <h1>Personalized Learning Roadmap</h1>
+      {/* Header Banner */}
+      <div className="page-header neo-card card-cyan">
+        <div className="header-content">
+          <div>
+            <span className="badge badge-yellow">Personalized Timeline</span>
+            <h1>Learning Roadmap</h1>
+            {targetRole && (
+              <p>
+                🎯 Target Career Role: <strong>{targetRole}</strong>
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
-      {targetRole && (
-        <h2>
-          🎯 Roadmap for: <span>{targetRole}</span>
-        </h2>
-      )}
-
+      {/* AI Personalized Banner */}
       {isAIPersonalized && (
-        <div className="ai-roadmap-banner">
-          🤖 <strong>AI-Personalized Roadmap</strong>
-          <p>
-            This roadmap is generated using your Gemini AI career analysis
-            and personalized learning priorities.
+        <div className="neo-card card-pink">
+          <div className="card-header-row" style={{ marginBottom: "var(--space-2xs)", borderBottom: "none" }}>
+            <span className="badge badge-yellow">🤖 Gemini AI Personalized</span>
+          </div>
+          <p className="text-muted">
+            This roadmap is customized dynamically based on your Gemini AI skill gap analysis and targeted career goals.
           </p>
         </div>
       )}
 
       {roadmap.length === 0 ? (
-        <p>
-          No skill gap data found. Please complete Skill Gap Analysis first.
-        </p>
+        <div className="neo-card" style={{ textAlign: "center", padding: "var(--space-2xl)" }}>
+          <h3>No Roadmap Data Found</h3>
+          <p className="text-muted" style={{ marginTop: "var(--space-xs)" }}>
+            Please complete your Skill Gap Analysis first to generate a custom learning roadmap.
+          </p>
+        </div>
       ) : (
         <>
-          {/* Roadmap Summary */}
-          <div className="roadmap-summary">
-            <h2>📚 Your Learning Summary</h2>
+          {/* Prominent Overall Progress & Summary */}
+          <div className="summary-grid-4">
+            <div className="summary-stat-box card-yellow">
+              <span className="badge badge-yellow">Total Modules</span>
+              <h3>{roadmap.length}</h3>
+              <p className="text-muted">Skills</p>
+            </div>
 
-            <div className="summary-grid">
-              <div className="summary-card">
-                <span className="summary-icon">📚</span>
-                <h3>{roadmap.length}</h3>
-                <p>Total Skills</p>
-              </div>
+            <div className="summary-stat-box card-green">
+              <span className="badge badge-green">Completed</span>
+              <h3>{completedCount}</h3>
+              <p className="text-muted">Mastered</p>
+            </div>
 
-              <div className="summary-card">
-                <span className="summary-icon">✅</span>
-                <h3>{completedCount}</h3>
-                <p>Completed</p>
-              </div>
+            <div className="summary-stat-box card-yellow">
+              <span className="badge badge-yellow">In Progress</span>
+              <h3>{inProgressCount}</h3>
+              <p className="text-muted">Active</p>
+            </div>
 
-              <div className="summary-card">
-                <span className="summary-icon">🔄</span>
-                <h3>{inProgressCount}</h3>
-                <p>In Progress</p>
-              </div>
-
-              <div className="summary-card">
-                <span className="summary-icon">⏳</span>
-                <h3>{notStartedCount}</h3>
-                <p>Not Started</p>
-              </div>
+            <div className="summary-stat-box">
+              <span className="badge">Not Started</span>
+              <h3>{notStartedCount}</h3>
+              <p className="text-muted">Remaining</p>
             </div>
           </div>
 
-          {/* Overall Progress Section */}
-          <div className="roadmap-progress">
-            <h2>📈 Overall Roadmap Progress</h2>
-
-            <div className="progress-info">
-              <span>
-                {completedCount} of {roadmap.length} skills completed
-              </span>
-
-              <strong>{progressPercentage}%</strong>
+          {/* Overall Roadmap Progress Bar */}
+          <div className="neo-card card-cyan">
+            <div className="card-header-row" style={{ borderBottom: "none" }}>
+              <div>
+                <h2>📈 Overall Roadmap Completion</h2>
+                <p className="text-muted">{completedCount} of {roadmap.length} skills completed</p>
+              </div>
+              <span className="score-number" style={{ fontSize: "36px" }}>{progressPercentage}%</span>
             </div>
 
-            <div className="progress-bar">
+            <div className="progress-container" style={{ height: "20px", margin: "var(--space-sm) 0" }}>
               <div
                 className="progress-fill"
-                style={{ width: `${progressPercentage}%` }}
+                style={{
+                  width: `${progressPercentage}%`,
+                  backgroundColor: "var(--neo-green)",
+                }}
               ></div>
             </div>
 
             {progressPercentage === 100 ? (
-              <p className="completion-message">
-                🎉 Congratulations! You completed your entire roadmap!
+              <p style={{ fontWeight: "700", color: "var(--text-main)" }}>
+                🎉 Congratulations! You have completed your entire learning roadmap!
               </p>
             ) : (
-              <p>
-                Keep learning and complete the remaining skills.
+              <p className="text-muted">
+                Keep up the momentum! Progress step by step to reach 100% career readiness.
               </p>
             )}
           </div>
 
-          {/* Roadmap Cards */}
-          <div className="roadmap-container">
-            {roadmap.map((item) => (
-              <div
-                className={`roadmap-card ${
-                  progress[item.skill] === "Completed"
-                    ? "completed"
-                    : ""
-                }`}
-                key={item.id}
-              >
-                <div className="roadmap-number">
-                  {item.id}
-                </div>
+          {/* Visually Strong Timeline Nodes */}
+          <div className="timeline-wrapper">
+            {roadmap.map((item) => {
+              const currentStatus = progress[item.skill] || "Not Started";
+              const isDone = currentStatus === "Completed";
+              const isInProgress = currentStatus === "In Progress";
 
-                <div className="roadmap-content">
-                  <h3>{item.skill}</h3>
+              return (
+                <div className="timeline-step-card" key={item.id}>
+                  {/* Step Circle Node */}
+                  <div
+                    className={`timeline-node-circle ${
+                      isDone
+                        ? "node-completed"
+                        : isInProgress
+                        ? "node-progress"
+                        : ""
+                    }`}
+                  >
+                    {isDone ? "✓" : item.id}
+                  </div>
 
-                  {/* AI Priority */}
-                  <p>
-                    🔥 <strong>AI Priority:</strong>{" "}
-                    {item.priority}
-                  </p>
+                  {/* Stage Content Card */}
+                  <div
+                    className={`timeline-content-card ${
+                      isDone ? "completed" : isInProgress ? "in-progress" : ""
+                    }`}
+                  >
+                    <div className="timeline-header-row">
+                      <div>
+                        <h3>{item.skill}</h3>
+                        <p className="text-muted" style={{ marginTop: "4px", fontSize: "14px" }}>
+                          {item.reason}
+                        </p>
+                      </div>
 
-                  {/* AI Reason */}
-                  <p>
-                    🤖 <strong>Why you should learn it:</strong>{" "}
-                    {item.reason}
-                  </p>
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        <span
+                          className={`badge ${
+                            isDone
+                              ? "badge-green"
+                              : isInProgress
+                              ? "badge-yellow"
+                              : ""
+                          }`}
+                        >
+                          {currentStatus}
+                        </span>
 
-                  <p>
-                    📊 <strong>Difficulty:</strong>{" "}
-                    {item.difficulty}
-                  </p>
+                        <span className="badge badge-cyan">
+                          ⏱️ {item.duration}
+                        </span>
 
-                  <p>
-                    ⏱️ <strong>Estimated Duration:</strong>{" "}
-                    {item.duration}
-                  </p>
+                        <span className="badge badge-pink">
+                          📊 {item.difficulty}
+                        </span>
+                      </div>
+                    </div>
 
-                  <p>
-                    📌 <strong>Status:</strong>{" "}
-                    {progress[item.skill] || "Not Started"}
-                  </p>
+                    {/* Topics to Learn */}
+                    <div style={{ marginTop: "var(--space-md)" }}>
+                      <strong style={{ fontSize: "13px", textTransform: "uppercase" }}>
+                        📚 Core Topics:
+                      </strong>
+                      <div className="topics-pill-grid">
+                        {item.topics.map((topic, idx) => (
+                          <span key={idx} className="topic-pill">
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
 
-                  <h4>📚 Topics to Learn</h4>
-
-                  <ul>
-                    {item.topics.map((topic, index) => (
-                      <li key={index}>
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {item.prerequisites &&
-                    item.prerequisites.length > 0 && (
-                      <>
-                        <h4>🔗 Prerequisites</h4>
-
-                        <ul>
-                          {item.prerequisites.map((prerequisite, index) => (
-                            <li key={index}>
-                              {prerequisite}
-                            </li>
+                    {/* Prerequisites */}
+                    {item.prerequisites && item.prerequisites.length > 0 && (
+                      <div style={{ marginTop: "var(--space-sm)" }}>
+                        <strong style={{ fontSize: "12px", textTransform: "uppercase" }}>
+                          🔗 Prerequisites:
+                        </strong>
+                        <div className="topics-pill-grid">
+                          {item.prerequisites.map((prereq, idx) => (
+                            <span key={idx} className="topic-pill">
+                              {prereq}
+                            </span>
                           ))}
-                        </ul>
-                      </>
+                        </div>
+                      </div>
                     )}
 
-                  <h4>💻 Mini Project</h4>
+                    {/* Mini Project Box */}
+                    <div className="mini-project-box">
+                      <strong style={{ fontSize: "13px", textTransform: "uppercase" }}>
+                        💻 Applied Mini Project:
+                      </strong>
+                      <p style={{ fontWeight: "700", marginTop: "4px" }}>{item.project}</p>
+                    </div>
 
-                  <p>{item.project}</p>
-
-                  {/* Learning Buttons */}
-                  {progress[item.skill] === "Completed" ? (
-                    <button disabled>
-                      ✅ Completed
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => startLearning(item.skill)}
-                      >
-                        {progress[item.skill] === "In Progress"
-                          ? "Continue Learning"
-                          : "Start Learning"}
-                      </button>
-
-                      {progress[item.skill] === "In Progress" && (
-                        <button
-                          onClick={() => markCompleted(item.skill)}
-                        >
-                          Mark as Completed
+                    {/* Node Actions */}
+                    <div className="node-actions-row">
+                      {isDone ? (
+                        <button disabled className="btn btn-green">
+                          ✅ Completed
                         </button>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => startLearning(item.skill)}
+                          >
+                            {isInProgress ? "🔄 Continue Learning" : "🚀 Start Learning"}
+                          </button>
+
+                          {isInProgress && (
+                            <button
+                              className="btn btn-green"
+                              onClick={() => markCompleted(item.skill)}
+                            >
+                              ✓ Mark as Completed
+                            </button>
+                          )}
+                        </>
                       )}
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}

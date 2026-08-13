@@ -42,19 +42,13 @@ function Resume() {
 
     try {
       setIsAnalyzing(true);
-
       console.log("Starting PDF extraction...");
 
       const text = await extractTextFromPDF(file);
+      console.log("Extracted Resume Text:", text);
 
-      console.log("Extracted Resume Text:");
-      console.log(text);
-
-      // Extract skills from resume
       const skills = extractSkills(text);
-
-      console.log("Extracted Skills:");
-      console.log(skills);
+      console.log("Extracted Skills:", skills);
 
       setExtractedSkills(skills);
       setExtractedText(text);
@@ -63,7 +57,6 @@ function Resume() {
         "resumeSkills",
         JSON.stringify(skills)
       );
-      
     } catch (error) {
       console.error("Resume analysis failed:", error);
       alert("Could not analyze the resume.");
@@ -72,21 +65,29 @@ function Resume() {
     }
   };
 
+  const categoryColors = [
+    "badge-cyan",
+    "badge-yellow",
+    "badge-pink",
+    "badge-green",
+  ];
 
   return (
     <div className="resume-page">
-
-      <div className="page-header">
-        <div>
-          <h1>Resume Analyzer</h1>
-
-          <p>
-            Upload your resume and let SkillForge AI identify
-            your skills, projects, and experience.
-          </p>
+      {/* Header Banner */}
+      <div className="page-header neo-card card-cyan">
+        <div className="header-content">
+          <div>
+            <span className="badge badge-yellow">PDF Parser & Skill Extractor</span>
+            <h1>Resume Analyzer</h1>
+            <p>
+              Upload your resume and let SkillForge AI identify your core skills, experience, and domain strengths.
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* Drag & Drop Upload Zone */}
       <div
         className={`upload-box ${isDragging ? "dragging" : ""}`}
         onDragOver={(event) => {
@@ -96,22 +97,18 @@ function Resume() {
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
       >
-
-        <div className="upload-icon">
+        <div className="upload-icon-badge">
           📄
         </div>
 
-        <h2>Upload your resume</h2>
+        <h2>Upload your Resume</h2>
 
-        <p>
-          Drag and drop your PDF here
-          <br />
-          or
+        <p className="upload-subtext">
+          Drag and drop your PDF resume file here, or click to browse
         </p>
 
-        <label className="upload-btn">
-          Choose PDF
-
+        <label className="btn btn-primary upload-btn">
+          <span>📁 Choose PDF File</span>
           <input
             type="file"
             accept=".pdf,application/pdf"
@@ -120,76 +117,79 @@ function Resume() {
           />
         </label>
 
-        <p className="upload-info">
-          Maximum file size: 5 MB
+        <p className="upload-info text-muted">
+          Supported format: <strong>PDF</strong> (Maximum size: 5 MB)
         </p>
-
       </div>
 
+      {/* Selected File Summary Card */}
       {file && (
-        <div className="selected-file">
-
+        <div className="selected-file neo-card card-yellow">
           <div className="file-info">
-
-            <div className="file-icon">
+            <div className="file-icon-badge">
               📄
             </div>
 
             <div>
               <h3>{file.name}</h3>
-
-              <p>
+              <p className="text-muted text-mono">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
-
           </div>
 
           <button
-            className="analyze-btn"
+            className="btn btn-green analyze-btn"
             onClick={handleAnalyze}
             disabled={isAnalyzing}
           >
-            {isAnalyzing ? "Analyzing..." : "Analyze Resume"}
+            {isAnalyzing ? "🔄 Analyzing..." : "✨ Analyze Resume"}
           </button>
-
         </div>
       )}
 
+      {/* Extracted Resume Text Card */}
       {extractedText && (
-        <div className="extracted-text-box">
-          <h2>Extracted Resume Text</h2>
+        <div className="extracted-text-box neo-card">
+          <div className="card-header-row">
+            <h2>Extracted Resume Text</h2>
+            <span className="badge badge-yellow">Parsed Output</span>
+          </div>
 
           <pre>{extractedText}</pre>
         </div>
       )}
 
+      {/* Detected Skills Section */}
       {Object.keys(extractedSkills).length > 0 && (
-        <div className="skills-section">
+        <div className="skills-section neo-card card-green">
+          <div className="card-header-row">
+            <h2>🎯 Detected Skills</h2>
+            <span className="badge badge-pink">Extracted</span>
+          </div>
 
-          <h2>Detected Skills</h2>
+          <div className="categories-grid">
+            {Object.entries(extractedSkills).map(([category, skills], index) => (
+              <div key={category} className="skill-category-card">
+                <h3>{category}</h3>
 
-          {Object.entries(extractedSkills).map(([category, skills]) => (
-            <div key={category} className="skill-category">
-
-              <h3>{category}</h3>
-
-              <div className="skill-list">
-
-                {skills.map((skill) => (
-                  <span key={skill} className="skill-tag">
-                    {skill}
-                  </span>
-                ))}
-
+                <div className="skill-list">
+                  {skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className={`badge ${
+                        categoryColors[index % categoryColors.length]
+                      }`}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
-
-            </div>
-          ))}
-
+            ))}
+          </div>
         </div>
       )}
-
     </div>
   );
 }
