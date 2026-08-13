@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getSkillForgeData, updateSkillForgeData, analyzeSkillGapAI } from "../services/api";
+import SkillCard from "../components/SkillCard";
+import StatCard from "../components/StatCard";
 
 const roleSkills = {
   "Full Stack Developer": [
@@ -275,21 +277,46 @@ function SkillGap() {
 
   if (pageLoading) {
     return (
-      <div className="loading-state" style={{ minHeight: "50vh" }}>
-        <div className="spinner"></div>
-        <p>Loading your skill gap analysis...</p>
+      <div className="skill-gap-page">
+        <div className="loading-state" style={{ minHeight: "50vh" }}>
+          <div className="spinner"></div>
+          <p>Loading your skill gap analysis...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="skill-gap-page">
-      <div className="page-header">
+      {/* Header */}
+      <div className="dashboard-header">
         <div>
+          <div className="dashboard-role-badge">
+            🎯 BENCHMARK ANALYSIS
+          </div>
           <h1>Skill Gap Analysis</h1>
-          <p>
-            Compare your verified skills against industry benchmarks for your target career.
+          <p className="dashboard-header-sub">
+            Compare your verified skills against industry benchmarks and run Gemini AI deep evaluations.
           </p>
+        </div>
+
+        {/* Target Role Selector Control */}
+        <div className="role-selector-box">
+          <label htmlFor="role-select" className="role-selector-label">
+            TARGET CAREER ROLE:
+          </label>
+          <select
+            id="role-select"
+            className="role-selector-select"
+            value={selectedRole}
+            onChange={(e) => handleRoleChange(e.target.value)}
+          >
+            {Object.keys(roleSkills).map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -297,80 +324,94 @@ function SkillGap() {
         <div className="status-banner warning">
           <span>⚠️</span>
           <p>
-            No resume skills detected. <a href="/resume" style={{ color: "inherit", textDecoration: "underline", fontWeight: "bold" }}>Upload your resume</a> for accurate gap analysis and personalized roadmap recommendations.
+            No resume skills detected.{" "}
+            <a
+              href="/resume"
+              style={{
+                color: "inherit",
+                textDecoration: "underline",
+                fontWeight: "bold",
+              }}
+            >
+              Upload your resume
+            </a>{" "}
+            for accurate gap analysis and personalized roadmap recommendations.
           </p>
         </div>
       )}
 
-      {/* Target Role Selector */}
-      <div className="role-selector">
-        <label>Select Target Role:</label>
-        <select
-          value={selectedRole}
-          onChange={(e) => handleRoleChange(e.target.value)}
-        >
-          {Object.keys(roleSkills).map((role) => (
-            <option key={role} value={role}>
-              {role}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Match Score & Skill Comparison Cards Grid */}
+      <div className="skill-gap-top-grid">
+        {/* Match Score Card */}
+        <div className="skill-score-card">
+          <div className="skill-score-header">
+            <h3>Skill Match Benchmark</h3>
+            <span className="badge-saved">{getStatus()}</span>
+          </div>
 
-      {/* Match Score Card */}
-      <div className="skill-score">
-        <h2>{matchPercentage}%</h2>
-        <p>Skill Match Benchmark</p>
-        <div className="progress-container">
-          <div
-            className="progress-bar"
-            style={{
-              width: `${matchPercentage}%`,
-            }}
-          ></div>
-        </div>
-        <h3>{getStatus()}</h3>
-      </div>
+          <div className="skill-score-body">
+            <h2 className="skill-score-number">{matchPercentage}%</h2>
+            <p className="skill-score-label">Coverage for {selectedRole}</p>
+          </div>
 
-      {/* Matched vs Missing Skills */}
-      <div className="skills-container">
-        <div className="skill-section">
-          <h2>✅ Matched Skills ({matchedSkills.length})</h2>
-          {matchedSkills.length > 0 ? (
-            <div className="skill-list">
-              {matchedSkills.map((skill) => (
-                <span className="skill matched" key={skill}>
-                  {skill}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p style={{ color: "#6b7280", marginTop: "15px" }}>No matching skills found for this role yet.</p>
-          )}
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${matchPercentage}%`,
+                backgroundColor:
+                  matchPercentage >= 80
+                    ? "var(--nb-mint)"
+                    : matchPercentage >= 50
+                    ? "var(--nb-yellow)"
+                    : "var(--nb-pink)",
+              }}
+            ></div>
+          </div>
         </div>
 
-        <div className="skill-section">
-          <h2>❌ Missing Skills ({missingSkills.length})</h2>
-          {missingSkills.length > 0 ? (
-            <div className="skill-list">
-              {missingSkills.map((skill) => (
-                <span className="skill missing" key={skill}>
-                  {skill}
-                </span>
-              ))}
+        {/* Matched vs Missing Skills Cards */}
+        <div className="skills-comparison-grid">
+          <div className="skill-section matched-section">
+            <div className="skill-section-header">
+              <h3>✅ Matched Skills ({matchedSkills.length})</h3>
             </div>
-          ) : (
-            <p style={{ color: "#10b981", marginTop: "15px" }}>You have covered all core skills for this role! 🎉</p>
-          )}
+            {matchedSkills.length > 0 ? (
+              <div className="skill-list">
+                {matchedSkills.map((skill) => (
+                  <SkillCard key={skill} skill={skill} status="matched" variant="pill" />
+                ))}
+              </div>
+            ) : (
+              <p className="skill-empty-text">No matching skills found for this role yet.</p>
+            )}
+          </div>
+
+          <div className="skill-section missing-section">
+            <div className="skill-section-header">
+              <h3>❌ Missing Skills ({missingSkills.length})</h3>
+            </div>
+            {missingSkills.length > 0 ? (
+              <div className="skill-list">
+                {missingSkills.map((skill) => (
+                  <SkillCard key={skill} skill={skill} status="missing" variant="pill" />
+                ))}
+              </div>
+            ) : (
+              <p className="skill-empty-text" style={{ color: "#065f46" }}>
+                You have covered all core skills for this role! 🎉
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
       {/* AI Analysis Section */}
       <div className="ai-analysis-section">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }}>
+        <div className="ai-analysis-header">
           <div>
             <h2>🤖 Gemini AI Deep Career Analysis</h2>
-            <p style={{ color: "#6b7280", margin: "5px 0 0" }}>
+            <p className="ai-analysis-sub">
               Get comprehensive career readiness ratings, critical gaps, and prioritized action steps.
             </p>
           </div>
@@ -379,9 +420,8 @@ function SkillGap() {
             onClick={analyzeWithAI}
             disabled={aiLoading}
             className="primary-btn"
-            style={{ padding: "12px 24px", fontSize: "15px" }}
           >
-            {aiLoading ? "Analyzing with Gemini..." : "✨ Run AI Deep Analysis"}
+            {aiLoading ? "✨ Analyzing with Gemini..." : "✨ Run AI Deep Analysis"}
           </button>
         </div>
 
@@ -399,29 +439,21 @@ function SkillGap() {
             </div>
 
             <div className="ai-summary-grid">
-              <div className="ai-summary-card">
-                <span className="ai-card-icon">📊</span>
-                <h4>AI Skill Match</h4>
-                <div className="ai-match-percentage">
-                  {aiResult.skillMatchPercentage}%
-                </div>
-                <div className="ai-progress-container">
-                  <div
-                    className="ai-progress-bar"
-                    style={{
-                      width: `${aiResult.skillMatchPercentage}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
+              <StatCard
+                title="AI SKILL MATCH"
+                value={`${aiResult.skillMatchPercentage}%`}
+                subtitle="Calculated by Gemini AI"
+                variant="yellow"
+                icon="📊"
+              />
 
-              <div className="ai-summary-card">
-                <span className="ai-card-icon">💼</span>
-                <h4>Career Readiness</h4>
-                <div className="ai-readiness">
-                  {aiResult.careerReadiness || "Developing"}
-                </div>
-              </div>
+              <StatCard
+                title="CAREER READINESS"
+                value={aiResult.careerReadiness || "Developing"}
+                subtitle={`Targeting ${selectedRole}`}
+                variant="mint"
+                icon="💼"
+              />
             </div>
 
             {aiResult.overallAssessment && (
@@ -433,12 +465,10 @@ function SkillGap() {
 
             {Array.isArray(aiResult.matchedSkills) && aiResult.matchedSkills.length > 0 && (
               <div className="ai-card">
-                <h3>✅ Your Strengths</h3>
-                <div className="ai-skill-list">
+                <h3>✅ Your Verified Strengths</h3>
+                <div className="skill-list" style={{ marginTop: "10px" }}>
                   {aiResult.matchedSkills.map((skill) => (
-                    <span className="ai-skill ai-skill-matched" key={skill}>
-                      {skill}
-                    </span>
+                    <SkillCard key={skill} skill={skill} status="matched" variant="pill" />
                   ))}
                 </div>
               </div>
@@ -447,11 +477,9 @@ function SkillGap() {
             {Array.isArray(aiResult.criticalGaps) && aiResult.criticalGaps.length > 0 && (
               <div className="ai-card">
                 <h3>⚠️ Critical Skill Gaps</h3>
-                <div className="ai-skill-list">
+                <div className="skill-list" style={{ marginTop: "10px" }}>
                   {aiResult.criticalGaps.map((skill) => (
-                    <span className="ai-skill ai-skill-missing" key={skill}>
-                      {skill}
-                    </span>
+                    <SkillCard key={skill} skill={skill} status="missing" variant="pill" />
                   ))}
                 </div>
               </div>
@@ -460,11 +488,9 @@ function SkillGap() {
             {Array.isArray(aiResult.missingSkills) && aiResult.missingSkills.length > 0 && (
               <div className="ai-card">
                 <h3>📚 Skills You Should Learn</h3>
-                <div className="ai-skill-list">
+                <div className="skill-list" style={{ marginTop: "10px" }}>
                   {aiResult.missingSkills.map((skill) => (
-                    <span className="ai-skill ai-skill-missing" key={skill}>
-                      {skill}
-                    </span>
+                    <SkillCard key={skill} skill={skill} status="missing" variant="pill" />
                   ))}
                 </div>
               </div>
@@ -481,7 +507,7 @@ function SkillGap() {
                         <div className="priority-title-row">
                           <h4>{item.skill}</h4>
                           <span
-                            className={`ai-priority-badge ${item.priority
+                            className={`priority priority--${item.priority
                               ?.toLowerCase()
                               .replace(" ", "-")}`}
                           >
@@ -519,9 +545,9 @@ function SkillGap() {
 
       {/* Rule-Based Recommendations Fallback / Complement */}
       {missingSkills.length > 0 && (
-        <div className="recommendations" style={{ marginTop: "30px" }}>
+        <div className="recommendations" style={{ marginTop: "32px" }}>
           <h2>💡 Skill Development Guides</h2>
-          <p>
+          <p className="dashboard-card-sub" style={{ marginBottom: "20px" }}>
             Practical overview of high-impact skills to acquire for <strong>{selectedRole}</strong>.
           </p>
 
@@ -533,7 +559,7 @@ function SkillGap() {
                   <div className="recommendation-header">
                     <h3>{skill}</h3>
                     <span
-                      className={`priority ${
+                      className={`priority priority--${
                         rec?.priority?.toLowerCase() || "medium"
                       }`}
                     >

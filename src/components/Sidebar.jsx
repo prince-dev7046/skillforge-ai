@@ -28,37 +28,37 @@ function Sidebar() {
           <p className="sidebar-title">MENU</p>
 
           <NavLink to="/dashboard" className="sidebar-link" onClick={closeMobile}>
-            <span>🏠</span>
+            <span className="sidebar-link-icon">🏠</span>
             Dashboard
           </NavLink>
 
           <NavLink to="/resume" className="sidebar-link" onClick={closeMobile}>
-            <span>📄</span>
+            <span className="sidebar-link-icon">📄</span>
             Resume Analyzer
           </NavLink>
 
           <NavLink to="/skill-gap" className="sidebar-link" onClick={closeMobile}>
-            <span>🎯</span>
+            <span className="sidebar-link-icon">🎯</span>
             Skill Gap
           </NavLink>
 
           <NavLink to="/roadmap" className="sidebar-link" onClick={closeMobile}>
-            <span>🗺️</span>
+            <span className="sidebar-link-icon">🗺️</span>
             My Roadmap
           </NavLink>
 
           <NavLink to="/projects" className="sidebar-link" onClick={closeMobile}>
-            <span>💡</span>
+            <span className="sidebar-link-icon">💡</span>
             Projects
           </NavLink>
 
           <NavLink to="/interview" className="sidebar-link" onClick={closeMobile}>
-            <span>💼</span>
+            <span className="sidebar-link-icon">💼</span>
             Interview Prep
           </NavLink>
 
           <NavLink to="/progress" className="sidebar-link" onClick={closeMobile}>
-            <span>📊</span>
+            <span className="sidebar-link-icon">📊</span>
             Progress
           </NavLink>
         </div>
@@ -67,7 +67,7 @@ function Sidebar() {
           <p className="sidebar-title">ACCOUNT</p>
 
           <NavLink to="/profile" className="sidebar-link" onClick={closeMobile}>
-            <span>👤</span>
+            <span className="sidebar-link-icon">👤</span>
             Profile
           </NavLink>
         </div>

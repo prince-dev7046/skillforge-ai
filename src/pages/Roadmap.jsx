@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSkillForgeData, updateSkillForgeData } from "../services/api";
+import StatCard from "../components/StatCard";
+import ProgressCard from "../components/ProgressCard";
 
 function Roadmap() {
   const [roadmap, setRoadmap] = useState([]);
@@ -316,41 +318,47 @@ function Roadmap() {
 
   if (loading) {
     return (
-      <div className="loading-state" style={{ minHeight: "50vh" }}>
-        <div className="spinner"></div>
-        <p>Loading your personalized roadmap...</p>
+      <div className="roadmap-page">
+        <div className="loading-state" style={{ minHeight: "50vh" }}>
+          <div className="spinner"></div>
+          <p>Loading your personalized roadmap...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="roadmap-page">
-      <div className="page-header" style={{ textAlign: "center", marginBottom: "20px" }}>
-        <h1>Personalized Learning Roadmap</h1>
-        {targetRole && (
-          <h2 style={{ fontSize: "20px", color: "#4f46e5", marginTop: "8px" }}>
-            🎯 Target Role: <span>{targetRole}</span>
-          </h2>
-        )}
+      {/* Header Banner */}
+      <div className="dashboard-header">
+        <div>
+          <div className="dashboard-role-badge">
+            🎯 TARGET CAREER: <strong>{targetRole || "Full Stack Developer"}</strong>
+          </div>
+          <h1>Personalized Learning Roadmap</h1>
+          <p className="dashboard-header-sub">
+            Step-by-step milestone curriculum generated from your verified resume skills and target career gaps.
+          </p>
+        </div>
       </div>
 
       {isAIPersonalized && (
-        <div className="ai-roadmap-banner" style={{ maxWidth: "1100px", margin: "0 auto 25px" }}>
-          🤖 <strong>Gemini AI Personalized Roadmap</strong>
+        <div className="status-banner info" style={{ marginBottom: "24px" }}>
+          <span>🤖</span>
           <p>
-            Generated specifically from your verified resume skills and target career requirements.
+            <strong>Gemini AI Personalized Roadmap</strong> — Generated specifically from your verified resume skills and target career requirements.
           </p>
         </div>
       )}
 
       {roadmap.length === 0 ? (
-        <div className="empty-state-card" style={{ maxWidth: "700px", margin: "40px auto" }}>
+        <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)", margin: "40px auto", maxWidth: "600px" }}>
           <span className="empty-icon">🗺️</span>
           <h3>No Roadmap Generated Yet</h3>
           <p>
             Upload your resume or run a Skill Gap analysis to build your customized milestone roadmap.
           </p>
-          <div style={{ display: "flex", gap: "15px", justifyContent: "center", marginTop: "20px" }}>
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center", marginTop: "20px" }}>
             <Link to="/resume" className="primary-btn">
               Upload Resume
             </Link>
@@ -361,168 +369,180 @@ function Roadmap() {
         </div>
       ) : (
         <>
-          {/* Roadmap Summary Cards */}
-          <div className="roadmap-summary">
-            <h2>📚 Learning Journey Overview</h2>
-            <div className="summary-grid">
-              <div className="summary-card">
-                <span className="summary-icon">📚</span>
-                <h3>{roadmap.length}</h3>
-                <p>Total Modules</p>
-              </div>
-
-              <div className="summary-card">
-                <span className="summary-icon">✅</span>
-                <h3>{completedCount}</h3>
-                <p>Completed</p>
-              </div>
-
-              <div className="summary-card">
-                <span className="summary-icon">🔄</span>
-                <h3>{inProgressCount}</h3>
-                <p>In Progress</p>
-              </div>
-
-              <div className="summary-card">
-                <span className="summary-icon">⏳</span>
-                <h3>{notStartedCount}</h3>
-                <p>Remaining</p>
-              </div>
-            </div>
+          {/* Summary Stat Cards Grid */}
+          <div className="stats-grid" style={{ marginBottom: "24px" }}>
+            <StatCard
+              title="Total Modules"
+              value={roadmap.length}
+              subtitle="Curriculum steps"
+              variant="yellow"
+              icon="📚"
+            />
+            <StatCard
+              title="Completed"
+              value={completedCount}
+              subtitle="Milestones done"
+              badgeText={`${completedCount}/${roadmap.length}`}
+              badgeVariant="mint"
+              variant="mint"
+              icon="✅"
+            />
+            <StatCard
+              title="In Progress"
+              value={inProgressCount}
+              subtitle="Active learning"
+              badgeText="Active"
+              badgeVariant="orange"
+              variant="orange"
+              icon="🔄"
+            />
+            <StatCard
+              title="Remaining"
+              value={notStartedCount}
+              subtitle="Next milestones"
+              badgeText="Queued"
+              badgeVariant="default"
+              variant="cyan"
+              icon="⏳"
+            />
           </div>
 
-          {/* Overall Progress Bar */}
-          <div className="roadmap-progress">
-            <h2>📈 Overall Mastery Progress</h2>
-            <div className="progress-info">
-              <span>
-                {completedCount} of {roadmap.length} milestones achieved
-              </span>
-              <strong>{progressPercentage}%</strong>
+          {/* Overall Progress Meter */}
+          <ProgressCard
+            title="Overall Roadmap Mastery"
+            percentage={progressPercentage}
+            completedSteps={completedCount}
+            totalSteps={roadmap.length}
+            subtitle={
+              progressPercentage === 100
+                ? `🎉 Outstanding! You have completed all learning milestones for ${targetRole}!`
+                : "Keep building projects and practicing concepts to reach 100% job readiness."
+            }
+            variant="mint"
+            icon="📈"
+          />
+
+          {/* Milestone Timeline List */}
+          <div className="roadmap-container" style={{ marginTop: "32px" }}>
+            <div className="roadmap-section-header">
+              <h2>Milestone Track ({roadmap.length} Steps)</h2>
+              <span className="badge-saved">PERSISTED TO PROFILE</span>
             </div>
 
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
-            </div>
+            <div className="roadmap-list">
+              {roadmap.map((item) => {
+                const currentStatus = progress[item.skill] || "Not Started";
+                const isCompleted = currentStatus === "Completed";
+                const isInProgress = currentStatus === "In Progress";
+                const isSaving = savingSkill === item.skill;
 
-            {progressPercentage === 100 ? (
-              <p className="completion-message" style={{ color: "#10b981", marginTop: "15px" }}>
-                🎉 Outstanding work! You have completed all learning milestones for {targetRole}!
-              </p>
-            ) : (
-              <p style={{ color: "#6b7280", marginTop: "10px", fontSize: "14px" }}>
-                Keep building projects and practicing concepts to reach 100% job readiness.
-              </p>
-            )}
-          </div>
-
-          {/* Roadmap Cards */}
-          <div className="roadmap-container">
-            {roadmap.map((item) => {
-              const currentStatus = progress[item.skill] || "Not Started";
-              const isCompleted = currentStatus === "Completed";
-              const isInProgress = currentStatus === "In Progress";
-              const isSaving = savingSkill === item.skill;
-
-              return (
-                <div
-                  className={`roadmap-card ${isCompleted ? "completed" : ""}`}
-                  key={item.id}
-                >
-                  <div className="roadmap-number">{item.id}</div>
-
-                  <div className="roadmap-content">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
-                      <h3>{item.skill}</h3>
-                      <span
-                        className={`status-pill ${
-                          isCompleted
-                            ? "status-completed"
-                            : isInProgress
-                            ? "status-in-progress"
-                            : "status-not-started"
-                        }`}
-                      >
-                        {currentStatus}
-                      </span>
+                return (
+                  <div
+                    className={`roadmap-card ${isCompleted ? "completed" : isInProgress ? "in-progress" : ""}`}
+                    key={item.id}
+                  >
+                    <div className="roadmap-card-header">
+                      <div className="roadmap-number-badge">Step {item.id}</div>
+                      <div className="roadmap-header-right">
+                        <span
+                          className={`status-pill ${
+                            isCompleted
+                              ? "status-completed"
+                              : isInProgress
+                              ? "status-in-progress"
+                              : "status-not-started"
+                          }`}
+                        >
+                          {currentStatus}
+                        </span>
+                      </div>
                     </div>
 
-                    <p>
-                      🔥 <strong>Priority:</strong> {item.priority}
-                    </p>
+                    <div className="roadmap-card-body">
+                      <h3 className="roadmap-skill-title">{item.skill}</h3>
 
-                    <p>
-                      🎯 <strong>Why learn this:</strong> {item.reason}
-                    </p>
+                      <div className="roadmap-meta-row">
+                        <span className="roadmap-meta-tag priority-tag">
+                          🔥 Priority: {item.priority}
+                        </span>
+                        <span className="roadmap-meta-tag difficulty-tag">
+                          📊 Difficulty: {item.difficulty}
+                        </span>
+                        <span className="roadmap-meta-tag duration-tag">
+                          ⏱️ Time: {item.duration}
+                        </span>
+                      </div>
 
-                    <div style={{ display: "flex", gap: "20px", margin: "10px 0", color: "#6b7280", fontSize: "14px" }}>
-                      <span>📊 <strong>Difficulty:</strong> {item.difficulty}</span>
-                      <span>⏱️ <strong>Estimated Time:</strong> {item.duration}</span>
-                    </div>
+                      <p className="roadmap-reason">
+                        <strong>Why learn this:</strong> {item.reason}
+                      </p>
 
-                    <h4>📚 Key Concepts & Topics</h4>
-                    <ul>
-                      {(Array.isArray(item.topics) ? item.topics : []).map((topic, idx) => (
-                        <li key={idx}>{topic}</li>
-                      ))}
-                    </ul>
-
-                    {Array.isArray(item.prerequisites) && item.prerequisites.length > 0 && (
-                      <>
-                        <h4>🔗 Prerequisites</h4>
-                        <ul>
-                          {item.prerequisites.map((prereq, idx) => (
-                            <li key={idx}>{prereq}</li>
+                      {/* Topics Breakdown */}
+                      <div className="roadmap-topics-box">
+                        <h4>📚 Key Concepts & Topics</h4>
+                        <ul className="roadmap-topics-list">
+                          {(Array.isArray(item.topics) ? item.topics : []).map((topic, idx) => (
+                            <li key={idx}>{topic}</li>
                           ))}
                         </ul>
-                      </>
-                    )}
+                      </div>
 
-                    <h4>💻 Recommended Hands-On Mini Project</h4>
-                    <p style={{ background: "#f8fafc", padding: "12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                      {item.project}
-                    </p>
-
-                    {/* Action Buttons */}
-                    <div style={{ marginTop: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                      {isCompleted ? (
-                        <button disabled className="btn-completed">
-                          ✅ Milestone Completed
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            className="primary-btn"
-                            disabled={isSaving}
-                            onClick={() =>
-                              updateSkillStatus(
-                                item.skill,
-                                isInProgress ? "In Progress" : "In Progress"
-                              )
-                            }
-                          >
-                            {isInProgress ? "📖 In Progress" : "🚀 Start Learning"}
-                          </button>
-
-                          {isInProgress && (
-                            <button
-                              className="success-btn"
-                              disabled={isSaving}
-                              onClick={() => updateSkillStatus(item.skill, "Completed")}
-                            >
-                              ✅ Mark as Completed
-                            </button>
-                          )}
-                        </>
+                      {/* Prerequisites if present */}
+                      {Array.isArray(item.prerequisites) && item.prerequisites.length > 0 && (
+                        <div className="roadmap-prereq-box">
+                          <h4>🔗 Prerequisites</h4>
+                          <ul className="roadmap-topics-list">
+                            {item.prerequisites.map((prereq, idx) => (
+                              <li key={idx}>{prereq}</li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
+
+                      {/* Recommended Hands-on Project */}
+                      <div className="roadmap-project-box">
+                        <h4>💻 Recommended Hands-On Mini Project</h4>
+                        <p className="roadmap-project-text">{item.project}</p>
+                      </div>
+
+                      {/* Action Button Controls */}
+                      <div className="roadmap-actions">
+                        {isCompleted ? (
+                          <button disabled className="btn-completed">
+                            ✅ Milestone Completed
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              className="primary-btn"
+                              disabled={isSaving}
+                              onClick={() =>
+                                updateSkillStatus(
+                                  item.skill,
+                                  isInProgress ? "In Progress" : "In Progress"
+                                )
+                              }
+                            >
+                              {isInProgress ? "📖 In Progress" : "🚀 Start Learning"}
+                            </button>
+
+                            {isInProgress && (
+                              <button
+                                className="success-btn"
+                                disabled={isSaving}
+                                onClick={() => updateSkillStatus(item.skill, "Completed")}
+                              >
+                                ✅ Mark as Completed
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </>
       )}

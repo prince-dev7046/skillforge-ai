@@ -57,6 +57,7 @@ function Navbar() {
       <div className="navbar-left">
         <button
           className="mobile-menu-btn"
+          aria-label="Toggle Navigation Menu"
           onClick={() => {
             setShowMobileMenu(!showMobileMenu);
             window.dispatchEvent(new CustomEvent("toggle-sidebar", { detail: !showMobileMenu }));
@@ -66,6 +67,7 @@ function Navbar() {
         </button>
 
         <Link to="/dashboard" className="navbar-logo">
+          <span className="navbar-logo-icon">⚡</span>
           SkillForge <span>AI</span>
         </Link>
       </div>
@@ -74,6 +76,7 @@ function Navbar() {
         <div className="notification-wrapper">
           <button
             className="notification-btn"
+            aria-label="Notifications"
             onClick={() => {
               setShowNotifications(!showNotifications);
               if (!showNotifications && unreadCount > 0) {

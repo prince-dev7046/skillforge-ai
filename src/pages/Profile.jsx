@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getProfile, updateProfile, getSkillForgeData, updateSkillForgeData } from "../services/api";
+import SkillCard from "../components/SkillCard";
+import StatCard from "../components/StatCard";
 
 const supportedRoles = [
   "Full Stack Developer",
@@ -87,38 +89,64 @@ function Profile() {
 
   if (loading) {
     return (
-      <div className="loading-state" style={{ minHeight: "50vh" }}>
-        <div className="spinner"></div>
-        <p>Loading your profile details...</p>
+      <div className="profile-page">
+        <div className="loading-state" style={{ minHeight: "50vh" }}>
+          <div className="spinner"></div>
+          <p>Loading your profile details...</p>
+        </div>
       </div>
     );
   }
 
+  const initialLetter = (name || profile?.name || "U").charAt(0).toUpperCase();
+
   return (
     <div className="profile-page">
-      <div className="page-header">
+      {/* Header Banner */}
+      <div className="dashboard-header">
         <div>
-          <h1>My Profile & Career Settings</h1>
-          <p>Manage your personal information, career target role, and view your verified skills.</p>
+          <div className="dashboard-role-badge">
+            👤 USER ACCOUNT
+          </div>
+          <h1>My Profile & Settings</h1>
+          <p className="dashboard-header-sub">
+            Manage your personal information, career target role, and view verified resume skills.
+          </p>
         </div>
       </div>
 
+      {/* Status Banners */}
       {message.text && (
-        <div className={`status-banner ${message.type}`} style={{ marginBottom: "20px" }}>
+        <div className={`status-banner ${message.type}`} style={{ marginBottom: "24px" }}>
           <span>{message.type === "error" ? "❌" : "✅"}</span>
           <p>{message.text}</p>
         </div>
       )}
 
+      {/* Two Column Profile Layout */}
       <div className="profile-grid">
-        {/* Left Column: Edit Form */}
+        {/* Left Column: Account Details Form */}
         <div className="dashboard-card">
-          <h2>Account Details</h2>
+          <div className="dashboard-card-title-row">
+            <div>
+              <h2>Account Details</h2>
+              <p className="dashboard-card-sub">Update profile information and target role</p>
+            </div>
+            <span className="badge-saved">AUTHENTICATED</span>
+          </div>
+
+          <div className="profile-avatar-header">
+            <div className="profile-large-avatar">{initialLetter}</div>
+            <div>
+              <h3 className="profile-user-name">{name || "User"}</h3>
+              <p className="profile-user-email">{profile?.email || ""}</p>
+            </div>
+          </div>
 
           <form onSubmit={handleSave}>
             <div className="form-group" style={{ marginBottom: "20px" }}>
-              <label htmlFor="prof-name" style={{ display: "block", fontWeight: "600", marginBottom: "8px" }}>
-                Full Name
+              <label htmlFor="prof-name" className="config-label" style={{ display: "block", marginBottom: "6px" }}>
+                FULL NAME
               </label>
               <input
                 id="prof-name"
@@ -127,54 +155,41 @@ function Profile() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your full name"
                 required
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #d1d5db",
-                  fontSize: "15px",
-                }}
+                className="interview-textarea"
+                style={{ height: "auto", minHeight: "44px" }}
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: "20px" }}>
-              <label htmlFor="prof-email" style={{ display: "block", fontWeight: "600", marginBottom: "8px" }}>
-                Email Address <span style={{ fontSize: "12px", color: "#6b7280", fontWeight: "normal" }}>(Read-Only)</span>
+              <label htmlFor="prof-email" className="config-label" style={{ display: "block", marginBottom: "6px" }}>
+                EMAIL ADDRESS <span style={{ fontSize: "11px", color: "#64748b", fontWeight: "normal" }}>(Read-Only)</span>
               </label>
               <input
                 id="prof-email"
                 type="email"
                 value={profile?.email || ""}
                 disabled
+                className="interview-textarea"
                 style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                  background: "#f3f4f6",
-                  color: "#6b7280",
-                  fontSize: "15px",
+                  height: "auto",
+                  minHeight: "44px",
+                  background: "var(--nb-surface-alt)",
+                  color: "#64748b",
                   cursor: "not-allowed",
                 }}
               />
             </div>
 
-            <div className="form-group" style={{ marginBottom: "25px" }}>
-              <label htmlFor="prof-role" style={{ display: "block", fontWeight: "600", marginBottom: "8px" }}>
-                Target Career Role
+            <div className="form-group" style={{ marginBottom: "28px" }}>
+              <label htmlFor="prof-role" className="config-label" style={{ display: "block", marginBottom: "6px" }}>
+                TARGET CAREER ROLE
               </label>
               <select
                 id="prof-role"
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #d1d5db",
-                  fontSize: "15px",
-                  background: "white",
-                }}
+                className="role-selector-select"
+                style={{ width: "100%", height: "46px" }}
               >
                 {supportedRoles.map((role) => (
                   <option key={role} value={role}>
@@ -188,75 +203,51 @@ function Profile() {
               type="submit"
               className="primary-btn"
               disabled={saving}
-              style={{ width: "100%", padding: "12px", fontSize: "16px" }}
+              style={{ width: "100%", padding: "12px", fontSize: "1rem" }}
             >
-              {saving ? "Saving Changes..." : "Save Profile Changes"}
+              {saving ? "✨ Saving Changes..." : "💾 Save Profile Changes"}
             </button>
           </form>
         </div>
 
-        {/* Right Column: Career Readiness & Skills Badge */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Career Readiness Badge */}
+        {/* Right Column: Career Readiness & Verified Skills */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {/* Career Readiness Card */}
+          <StatCard
+            title="Career Readiness Status"
+            value={aiAnalysis?.skillMatchPercentage !== undefined ? `${aiAnalysis.skillMatchPercentage}%` : "—"}
+            subtitle={aiAnalysis?.careerReadiness ? `${aiAnalysis.careerReadiness} Level` : "Developing Level"}
+            badgeText={targetRole}
+            badgeVariant="mint"
+            variant="yellow"
+            icon="🎯"
+          />
+
+          {/* Verified Skills Card */}
           <div className="dashboard-card">
-            <h2>Career Readiness Status</h2>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "15px", margin: "15px 0" }}>
-              <div
-                style={{
-                  width: "60px",
-                  height: "60px",
-                  borderRadius: "50%",
-                  background: "#e0e7ff",
-                  color: "#4338ca",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                }}
-              >
-                {aiAnalysis?.skillMatchPercentage !== undefined ? `${aiAnalysis.skillMatchPercentage}%` : "—"}
-              </div>
-
+            <div className="dashboard-card-title-row">
               <div>
-                <h3 style={{ margin: "0 0 4px", fontSize: "18px" }}>
-                  {aiAnalysis?.careerReadiness || "Developing"} Level
-                </h3>
-                <p style={{ margin: 0, color: "#6b7280", fontSize: "14px" }}>
-                  Targeting {targetRole}
-                </p>
+                <h2>Verified Resume Skills ({skills.length})</h2>
+                <p className="dashboard-card-sub">Extracted skills from your profile resume</p>
               </div>
-            </div>
-
-            {aiAnalysis?.overallAssessment && (
-              <p style={{ color: "#4b5563", fontSize: "14px", lineHeight: "1.6", marginTop: "10px" }}>
-                {aiAnalysis.overallAssessment}
-              </p>
-            )}
-          </div>
-
-          {/* Verified Skills */}
-          <div className="dashboard-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
-              <h2>Verified Resume Skills ({skills.length})</h2>
-              <a href="/resume" style={{ fontSize: "13px", color: "#6366f1", fontWeight: "600" }}>
+              <a href="/resume" className="dashboard-card-link">
                 Manage Resume →
               </a>
             </div>
 
             {skills.length > 0 ? (
-              <div className="skill-list" style={{ marginTop: "10px" }}>
+              <div className="skill-list" style={{ marginTop: "12px" }}>
                 {skills.map((skill) => (
-                  <span key={skill} className="skill-tag">
-                    {skill}
-                  </span>
+                  <SkillCard key={skill} skill={skill} status="verified" variant="pill" />
                 ))}
               </div>
             ) : (
-              <p style={{ color: "#6b7280", fontSize: "14px" }}>
-                No skills detected yet. Upload a resume to automatically verify and track your technical competencies.
-              </p>
+              <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)", padding: "20px" }}>
+                <span className="empty-icon">📋</span>
+                <p style={{ color: "#64748b", fontSize: "0.9rem", margin: 0 }}>
+                  No skills detected yet. Upload a resume to automatically verify and track your technical competencies.
+                </p>
+              </div>
             )}
           </div>
         </div>

@@ -5,6 +5,7 @@ import {
   generateInterviewQuestionsAI,
   evaluateInterviewAnswerAI,
 } from "../services/api";
+import StatCard from "../components/StatCard";
 
 const interviewTypes = ["Technical", "HR", "Behavioral", "Mixed"];
 const difficultyLevels = ["Entry-Level", "Mid-Level", "Senior"];
@@ -154,20 +155,26 @@ function Interview() {
 
   if (pageLoading) {
     return (
-      <div className="loading-state" style={{ minHeight: "50vh" }}>
-        <div className="spinner"></div>
-        <p>Loading AI interview preparation simulator...</p>
+      <div className="interview-page">
+        <div className="loading-state" style={{ minHeight: "50vh" }}>
+          <div className="spinner"></div>
+          <p>Loading AI interview preparation simulator...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="interview-page">
-      <div className="page-header">
+      {/* Header Banner */}
+      <div className="dashboard-header">
         <div>
+          <div className="dashboard-role-badge">
+            🎯 TARGET CAREER: <strong>{targetRole}</strong>
+          </div>
           <h1>AI Mock Interview Coach</h1>
-          <p>
-            Simulate realistic technical and behavioral interview scenarios with AI scoring and personalized feedback.
+          <p className="dashboard-header-sub">
+            Simulate realistic technical and behavioral interview scenarios with AI scoring and feedback.
           </p>
         </div>
 
@@ -187,6 +194,7 @@ function Interview() {
         </div>
       </div>
 
+      {/* Error Banner */}
       {error && (
         <div className="status-banner error" style={{ marginBottom: "20px" }}>
           <span>❌</span>
@@ -197,18 +205,23 @@ function Interview() {
       {activeTab === "practice" ? (
         <>
           {/* Configuration Card */}
-          <div className="dashboard-card" style={{ marginBottom: "30px" }}>
-            <h2>Configure Your Mock Interview</h2>
+          <div className="dashboard-card" style={{ marginBottom: "28px" }}>
+            <div className="dashboard-card-title-row">
+              <div>
+                <h2>Configure Mock Interview</h2>
+                <p className="dashboard-card-sub">Select format and difficulty for tailored question generation</p>
+              </div>
+              <span className="badge-saved">AI POWERED</span>
+            </div>
 
             <div className="interview-config-grid">
-              <div>
-                <label style={{ display: "block", fontWeight: "600", marginBottom: "8px" }}>
-                  Target Role
-                </label>
+              <div className="config-control-group">
+                <label className="config-label">Target Role</label>
                 <select
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" }}
+                  className="role-selector-select"
+                  style={{ width: "100%" }}
                 >
                   {supportedRoles.map((r) => (
                     <option key={r} value={r}>
@@ -218,14 +231,13 @@ function Interview() {
                 </select>
               </div>
 
-              <div>
-                <label style={{ display: "block", fontWeight: "600", marginBottom: "8px" }}>
-                  Interview Format
-                </label>
+              <div className="config-control-group">
+                <label className="config-label">Interview Format</label>
                 <select
                   value={interviewType}
                   onChange={(e) => setInterviewType(e.target.value)}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" }}
+                  className="role-selector-select"
+                  style={{ width: "100%" }}
                 >
                   {interviewTypes.map((t) => (
                     <option key={t} value={t}>
@@ -235,14 +247,13 @@ function Interview() {
                 </select>
               </div>
 
-              <div>
-                <label style={{ display: "block", fontWeight: "600", marginBottom: "8px" }}>
-                  Seniority Level
-                </label>
+              <div className="config-control-group">
+                <label className="config-label">Seniority Level</label>
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" }}
+                  className="role-selector-select"
+                  style={{ width: "100%" }}
                 >
                   {difficultyLevels.map((d) => (
                     <option key={d} value={d}>
@@ -255,7 +266,7 @@ function Interview() {
 
             <button
               className="primary-btn"
-              style={{ marginTop: "20px", padding: "12px 25px" }}
+              style={{ marginTop: "24px", padding: "12px 28px" }}
               onClick={handleGenerateQuestions}
               disabled={loadingQuestions}
             >
@@ -263,123 +274,121 @@ function Interview() {
             </button>
           </div>
 
-          {/* Question List */}
+          {/* Questions List */}
           {questions.length > 0 ? (
             <div className="interview-questions-list">
-              <h2>Interview Questions ({questions.length})</h2>
+              <div className="roadmap-section-header">
+                <h2>Interview Questions ({questions.length})</h2>
+                <span className="badge-saved">{interviewType.toUpperCase()} FORMAT</span>
+              </div>
 
               {questions.map((q, idx) => {
                 const evalData = evaluations[idx];
                 const isEvaluating = evaluatingIndex === idx;
 
                 return (
-                  <div key={idx} className="dashboard-card" style={{ marginBottom: "25px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "15px" }}>
-                      <div>
-                        <span className="badge-difficulty" style={{ marginRight: "10px" }}>
+                  <div key={idx} className="dashboard-card interview-question-card" style={{ marginBottom: "28px" }}>
+                    <div className="question-card-header">
+                      <div className="question-meta-left">
+                        <span className="question-number-badge">
                           Question {idx + 1}
                         </span>
-                        <span style={{ fontSize: "13px", color: "#6b7280" }}>
+                        <span className="question-category-tag">
                           Category: {q.category || interviewType}
                         </span>
                       </div>
 
                       {evalData && (
                         <div
-                          style={{
-                            padding: "6px 14px",
-                            borderRadius: "20px",
-                            fontWeight: "bold",
-                            background: evalData.score >= 7 ? "#dcfce7" : evalData.score >= 5 ? "#fef3c7" : "#fee2e2",
-                            color: evalData.score >= 7 ? "#166534" : evalData.score >= 5 ? "#92400e" : "#991b1b",
-                          }}
+                          className={`score-badge-pill ${
+                            evalData.score >= 7
+                              ? "score-high"
+                              : evalData.score >= 5
+                              ? "score-mid"
+                              : "score-low"
+                          }`}
                         >
                           Score: {evalData.score} / 10
                         </div>
                       )}
                     </div>
 
-                    <h3 style={{ fontSize: "18px", lineHeight: "1.5", marginBottom: "12px" }}>
-                      {q.question}
-                    </h3>
+                    <h3 className="question-title-text">{q.question}</h3>
 
                     {q.expectedTopics && q.expectedTopics.length > 0 && (
-                      <div style={{ marginBottom: "15px", fontSize: "13px", color: "#6b7280" }}>
+                      <div className="question-focus-box">
                         <strong>💡 Key Focus Areas: </strong>
-                        {q.expectedTopics.join(" • ")}
+                        {q.expectedTopics.map((topic) => (
+                          <span key={topic} className="focus-topic-tag">
+                            {topic}
+                          </span>
+                        ))}
                       </div>
                     )}
 
-                    <div style={{ marginTop: "15px" }}>
-                      <label style={{ display: "block", fontWeight: "600", fontSize: "14px", marginBottom: "6px" }}>
-                        Your Answer:
-                      </label>
+                    <div className="answer-section">
+                      <div className="answer-label-row">
+                        <label className="answer-label">Your Response:</label>
+                        <span className="star-tip">💡 Tip: Use STAR method (Situation, Task, Action, Result)</span>
+                      </div>
                       <textarea
                         rows="5"
-                        placeholder="Type your structured answer here (use STAR method for behavioral questions)..."
+                        placeholder="Type your structured response here..."
                         value={answers[idx] || ""}
                         onChange={(e) =>
                           setAnswers({ ...answers, [idx]: e.target.value })
                         }
-                        style={{
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "8px",
-                          border: "1px solid #d1d5db",
-                          fontFamily: "inherit",
-                          fontSize: "14px",
-                          lineHeight: "1.6",
-                        }}
+                        className="interview-textarea"
                       />
                     </div>
 
                     <button
                       className="primary-btn"
-                      style={{ marginTop: "12px" }}
+                      style={{ marginTop: "16px" }}
                       disabled={isEvaluating}
                       onClick={() => handleEvaluateAnswer(idx, q)}
                     >
                       {isEvaluating ? "🤖 Evaluating Answer with AI..." : "📝 Submit & Evaluate Answer"}
                     </button>
 
-                    {/* AI Evaluation Results Card */}
+                    {/* AI Evaluation Feedback Box */}
                     {evalData && (
                       <div className="interview-feedback-box">
-                        <h4>🎯 AI Evaluation Feedback</h4>
-                        <p style={{ color: "#374151", margin: "8px 0 15px", fontStyle: "italic" }}>
+                        <div className="feedback-header-row">
+                          <h4>🎯 AI Evaluation Feedback</h4>
+                          <span className="score-summary-tag">Score: {evalData.score}/10</span>
+                        </div>
+
+                        <p className="overall-feedback-text">
                           "{evalData.overallFeedback}"
                         </p>
 
                         {Array.isArray(evalData.strengths) && evalData.strengths.length > 0 && (
-                          <div style={{ marginBottom: "12px" }}>
-                            <strong style={{ color: "#166534" }}>✅ Strengths:</strong>
-                            <ul style={{ margin: "5px 0 0 20px" }}>
+                          <div className="feedback-group strengths-group">
+                            <strong>✅ Key Strengths:</strong>
+                            <ul>
                               {evalData.strengths.map((s, i) => (
-                                <li key={i} style={{ color: "#374151" }}>{s}</li>
+                                <li key={i}>{s}</li>
                               ))}
                             </ul>
                           </div>
                         )}
 
                         {Array.isArray(evalData.weaknesses) && evalData.weaknesses.length > 0 && (
-                          <div style={{ marginBottom: "12px" }}>
-                            <strong style={{ color: "#991b1b" }}>⚠️ Areas for Improvement:</strong>
-                            <ul style={{ margin: "5px 0 0 20px" }}>
+                          <div className="feedback-group weaknesses-group">
+                            <strong>⚠️ Areas for Improvement:</strong>
+                            <ul>
                               {evalData.weaknesses.map((w, i) => (
-                                <li key={i} style={{ color: "#374151" }}>{w}</li>
+                                <li key={i}>{w}</li>
                               ))}
                             </ul>
                           </div>
                         )}
 
                         {evalData.improvedAnswer && (
-                          <div style={{ marginTop: "15px", background: "#ffffff", padding: "15px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                            <strong style={{ color: "#4338ca", display: "block", marginBottom: "6px" }}>
-                              ⭐ High-Scoring Benchmark Answer:
-                            </strong>
-                            <p style={{ color: "#334155", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
-                              {evalData.improvedAnswer}
-                            </p>
+                          <div className="benchmark-answer-box">
+                            <strong>⭐ High-Scoring Benchmark Answer:</strong>
+                            <p>{evalData.improvedAnswer}</p>
                           </div>
                         )}
                       </div>
@@ -389,7 +398,7 @@ function Interview() {
               })}
             </div>
           ) : (
-            <div className="empty-state-card">
+            <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)" }}>
               <span className="empty-icon">💼</span>
               <h3>No Active Mock Session</h3>
               <p>
@@ -402,60 +411,66 @@ function Interview() {
         /* History Tab */
         <div>
           {averageScore && (
-            <div className="dashboard-card" style={{ marginBottom: "20px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <h3 style={{ margin: 0 }}>Performance Summary</h3>
-                  <p style={{ color: "#6b7280", margin: "4px 0 0" }}>Average across {interviewHistory.length} evaluated questions</p>
-                </div>
-                <div style={{ fontSize: "28px", fontWeight: "bold", color: "#4f46e5" }}>
-                  {averageScore} / 10
-                </div>
-              </div>
+            <div className="stats-grid" style={{ marginBottom: "28px" }}>
+              <StatCard
+                title="Average Score"
+                value={`${averageScore} / 10`}
+                subtitle={`Across ${interviewHistory.length} evaluated responses`}
+                badgeText={averageScore >= 7 ? "High Competency" : "Developing"}
+                badgeVariant={averageScore >= 7 ? "mint" : "orange"}
+                variant="yellow"
+                icon="📊"
+              />
+              <StatCard
+                title="Questions Answered"
+                value={interviewHistory.length}
+                subtitle="Historical evaluated responses"
+                badgeText="History Recorded"
+                badgeVariant="default"
+                variant="violet"
+                icon="📜"
+              />
             </div>
           )}
 
           {interviewHistory.length === 0 ? (
-            <div className="empty-state-card">
+            <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)" }}>
               <span className="empty-icon">📜</span>
               <h3>No Past Interview History</h3>
-              <p>Complete mock interview questions to track your answers and AI evaluations here.</p>
+              <p>Complete mock interview questions to track your responses and AI evaluations here.</p>
             </div>
           ) : (
-            interviewHistory.map((item) => (
-              <div key={item.id} className="dashboard-card" style={{ marginBottom: "15px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                  <div>
-                    <span style={{ fontSize: "12px", color: "#6b7280", fontWeight: "bold" }}>
-                      {item.date} • {item.targetRole} ({item.interviewType})
+            <div className="history-list">
+              {interviewHistory.map((item) => (
+                <div key={item.id} className="dashboard-card history-card" style={{ marginBottom: "20px" }}>
+                  <div className="history-card-header">
+                    <div>
+                      <span className="history-meta-tag">
+                        {item.date} • {item.targetRole} ({item.interviewType})
+                      </span>
+                      <h3 className="history-question-title">{item.question}</h3>
+                    </div>
+                    <span
+                      className={`score-badge-pill ${
+                        item.score >= 7 ? "score-high" : "score-low"
+                      }`}
+                    >
+                      Score: {item.score}/10
                     </span>
-                    <h4 style={{ margin: "6px 0", fontSize: "16px" }}>{item.question}</h4>
                   </div>
-                  <span
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: "12px",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                      background: item.score >= 7 ? "#dcfce7" : "#fee2e2",
-                      color: item.score >= 7 ? "#166534" : "#991b1b",
-                    }}
-                  >
-                    Score: {item.score}/10
-                  </span>
-                </div>
 
-                <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "6px", fontSize: "13px", color: "#475569" }}>
-                  <strong>Your Answer: </strong> {item.userAnswer}
-                </div>
+                  <div className="history-answer-box">
+                    <strong>Your Response:</strong> {item.userAnswer}
+                  </div>
 
-                {item.feedback && (
-                  <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "8px" }}>
-                    💡 <strong>Feedback:</strong> {item.feedback}
-                  </p>
-                )}
-              </div>
-            ))
+                  {item.feedback && (
+                    <div className="history-feedback-snippet">
+                      <strong>💡 AI Feedback:</strong> {item.feedback}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

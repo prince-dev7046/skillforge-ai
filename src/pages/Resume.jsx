@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { extractTextFromPDF } from "../utils/pdfExtractor";
 import { extractSkills } from "../utils/skillExtractor";
 import { getSkillForgeData, updateSkillForgeData } from "../services/api";
+import SkillCard from "../components/SkillCard";
 
 function Resume() {
   const [extractedSkills, setExtractedSkills] = useState({});
@@ -117,22 +118,34 @@ function Resume() {
 
   return (
     <div className="resume-page">
-      <div className="page-header">
+      {/* Header Banner */}
+      <div className="dashboard-header">
         <div>
+          <div className="dashboard-role-badge">
+            📄 CLIENT-SIDE PDF PARSER
+          </div>
           <h1>Resume Analyzer</h1>
-          <p>
-            Upload your resume and let SkillForge AI identify your skills, experience, and domain expertise.
+          <p className="dashboard-header-sub">
+            Upload your PDF resume to extract verified skills, domain competencies, and track your profile readiness.
           </p>
         </div>
       </div>
 
+      {/* Status Banner */}
       {statusMessage.text && (
         <div className={`status-banner ${statusMessage.type}`}>
-          <span>{statusMessage.type === "error" ? "❌" : statusMessage.type === "success" ? "✅" : "⏳"}</span>
+          <span>
+            {statusMessage.type === "error"
+              ? "❌"
+              : statusMessage.type === "success"
+              ? "✅"
+              : "⏳"}
+          </span>
           <p>{statusMessage.text}</p>
         </div>
       )}
 
+      {/* Drag & Drop Upload Zone */}
       <div
         className={`upload-box ${isDragging ? "dragging" : ""}`}
         onDragOver={(event) => {
@@ -142,16 +155,14 @@ function Resume() {
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
       >
-        <div className="upload-icon">📄</div>
-        <h2>Upload your resume</h2>
-        <p>
-          Drag and drop your PDF here
-          <br />
-          or
+        <div className="upload-icon-badge">📄</div>
+        <h2>Upload Your PDF Resume</h2>
+        <p className="upload-prompt">
+          Drag & drop your PDF file here, or click to browse
         </p>
 
         <label className="upload-btn">
-          Choose PDF
+          <span>📁 Select PDF File</span>
           <input
             type="file"
             accept=".pdf,application/pdf"
@@ -160,21 +171,30 @@ function Resume() {
           />
         </label>
 
-        <p className="upload-info">Maximum file size: 5 MB (PDF format only)</p>
+        <p className="upload-info">
+          Maximum file size: <strong>5 MB</strong> (Text-based PDF format)
+        </p>
       </div>
 
+      {/* Selected File Card */}
       {file && (
         <div className="selected-file">
           <div className="file-info">
-            <div className="file-icon">📄</div>
+            <div className="file-icon-badge">📄</div>
             <div>
               <h3>{file.name}</h3>
-              <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <p className="file-meta">
+                {(file.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+              </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button className="secondary-btn" onClick={handleReset} disabled={isAnalyzing}>
+          <div className="file-actions">
+            <button
+              className="secondary-btn"
+              onClick={handleReset}
+              disabled={isAnalyzing}
+            >
               Change File
             </button>
             <button
@@ -182,51 +202,62 @@ function Resume() {
               onClick={handleAnalyze}
               disabled={isAnalyzing}
             >
-              {isAnalyzing ? "Analyzing Resume..." : "Analyze Resume"}
+              {isAnalyzing ? "✨ Analyzing PDF..." : "⚡ Analyze Resume"}
             </button>
           </div>
         </div>
       )}
 
+      {/* Detected Skills Section */}
       {loadingInitial ? (
         <div className="loading-state">
           <div className="spinner"></div>
-          <p>Loading your saved profile skills...</p>
+          <p>Loading saved profile skills...</p>
         </div>
       ) : totalDetectedCount > 0 ? (
         <div className="skills-section">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2>Detected Skills ({totalDetectedCount})</h2>
+          <div className="skills-section-header">
+            <div>
+              <h2>Detected Skills ({totalDetectedCount})</h2>
+              <p className="skills-section-sub">Categorized from your verified resume text</p>
+            </div>
             <span className="badge-saved">Saved to MongoDB Account</span>
           </div>
 
-          {Object.entries(extractedSkills).map(([category, skills]) =>
-            skills.length > 0 ? (
-              <div key={category} className="skill-category">
-                <h3>{category.replace(/([A-Z])/g, " $1")}</h3>
-                <div className="skill-list">
-                  {skills.map((skill) => (
-                    <span key={skill} className="skill-tag">
-                      {skill}
-                    </span>
-                  ))}
+          <div className="skills-category-grid">
+            {Object.entries(extractedSkills).map(([category, skills]) =>
+              skills.length > 0 ? (
+                <div key={category} className="skill-category-card">
+                  <div className="skill-category-header">
+                    <h3>{category.replace(/([A-Z])/g, " $1")}</h3>
+                    <span className="category-count-tag">{skills.length}</span>
+                  </div>
+                  <div className="skill-list">
+                    {skills.map((skill) => (
+                      <SkillCard key={skill} skill={skill} status="verified" variant="pill" />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : null
-          )}
+              ) : null
+            )}
+          </div>
         </div>
       ) : (
-        <div className="empty-state-card">
+        <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)", marginTop: "24px" }}>
           <span className="empty-icon">📋</span>
           <h3>No Resume Analyzed Yet</h3>
-          <p>Upload your PDF resume above to extract skills and enable personalized recommendations.</p>
+          <p>Upload your PDF resume above to extract skills and enable AI-powered gap analysis.</p>
         </div>
       )}
 
+      {/* Extracted Text Preview Box */}
       {extractedText && (
         <div className="extracted-text-box">
-          <h2>Extracted Resume Text Preview</h2>
-          <pre>{extractedText}</pre>
+          <div className="extracted-text-header">
+            <h3>Extracted Resume Text Preview</h3>
+            <span className="extracted-length-badge">{extractedText.length} characters</span>
+          </div>
+          <pre className="extracted-text-pre">{extractedText}</pre>
         </div>
       )}
     </div>

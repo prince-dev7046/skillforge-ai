@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getSkillForgeData, getProfile } from "../services/api";
+import StatCard from "../components/StatCard";
+import SkillCard from "../components/SkillCard";
 
 function Progress() {
   const [data, setData] = useState(null);
@@ -30,7 +32,7 @@ function Progress() {
 
   if (loading) {
     return (
-      <div className="progress-page">
+      <div className="progress-analytics-page">
         <div className="loading-state" style={{ minHeight: "50vh" }}>
           <div className="spinner"></div>
           <p>Analyzing your comprehensive career trajectory data...</p>
@@ -106,140 +108,181 @@ function Progress() {
 
   return (
     <div className="progress-analytics-page">
-      <div className="page-header">
+      {/* Header */}
+      <div className="dashboard-header">
         <div>
+          <div className="dashboard-role-badge">
+            🎯 TARGET CAREER: <strong>{targetRole}</strong>
+          </div>
           <h1>Progress & Career Analytics</h1>
-          <p>
-            Holistic view of your learning milestones, verified skill acquisition, and career readiness for <strong>{targetRole}</strong>.
+          <p className="dashboard-header-sub">
+            Holistic view of your learning milestones, verified skill acquisition, and career readiness trajectory.
           </p>
         </div>
+
+        <div className="dashboard-actions">
+          <Link to="/roadmap" className="secondary-btn">
+            🗺️ My Roadmap
+          </Link>
+          <Link to="/skill-gap" className="primary-btn">
+            🎯 Skill Gap Analysis
+          </Link>
+        </div>
       </div>
 
-      {/* Top Level Big Stat Cards */}
+      {/* Top Level 4 Stat Cards */}
       <div className="stats-grid">
-        <div className="stat-card">
-          <p>Overall Readiness</p>
-          <h2>{readinessScore}%</h2>
-          <span style={{ color: readinessScore >= 75 ? "#10b981" : "#6366f1" }}>
-            {readinessLevel} Level
-          </span>
-        </div>
+        <StatCard
+          title="Overall Readiness"
+          value={`${readinessScore}%`}
+          subtitle="Career Benchmark"
+          badgeText={`${readinessLevel} Level`}
+          badgeVariant={readinessScore >= 75 ? "mint" : "yellow"}
+          variant="yellow"
+          icon="🎯"
+        />
 
-        <div className="stat-card">
-          <p>Roadmap Completion</p>
-          <h2>{roadmapPercent}%</h2>
-          <span>{completedRoadmap} of {totalRoadmapItems} completed</span>
-        </div>
+        <StatCard
+          title="Roadmap Completion"
+          value={`${roadmapPercent}%`}
+          subtitle={`${completedRoadmap} of ${totalRoadmapItems} milestones`}
+          badgeText={`${completedRoadmap}/${totalRoadmapItems}`}
+          badgeVariant="mint"
+          variant="mint"
+          icon="🗺️"
+        />
 
-        <div className="stat-card">
-          <p>Projects Finished</p>
-          <h2>{completedProjects}/{projects.length || 0}</h2>
-          <span>{projectPercent}% portfolio completion</span>
-        </div>
+        <StatCard
+          title="Projects Finished"
+          value={`${completedProjects}/${projects.length || 0}`}
+          subtitle={`${projectPercent}% portfolio completion`}
+          badgeText={`${projectPercent}% Done`}
+          badgeVariant="default"
+          variant="violet"
+          icon="💡"
+        />
 
-        <div className="stat-card">
-          <p>Avg Interview Score</p>
-          <h2>{avgInterviewScore ? `${avgInterviewScore}/10` : "—"}</h2>
-          <span>{totalInterviews} answers evaluated</span>
-        </div>
+        <StatCard
+          title="Avg Interview Score"
+          value={avgInterviewScore ? `${avgInterviewScore}/10` : "—"}
+          subtitle={`${totalInterviews} answers evaluated`}
+          badgeText={totalInterviews > 0 ? `${totalInterviews} Tests` : "No Tests"}
+          badgeVariant={avgInterviewScore >= 7 ? "mint" : "orange"}
+          variant="cyan"
+          icon="💼"
+        />
       </div>
 
-      <div className="dashboard-grid" style={{ marginTop: "25px" }}>
-        {/* Left Column: Detailed Progress Bars */}
+      {/* Main Two-Column Layout */}
+      <div className="dashboard-grid">
+        {/* Left Column: Detailed Milestone Progress Meters */}
         <div className="dashboard-card">
-          <h2>Career Preparation Milestones</h2>
-
-          {/* Metric 1: Skill Gap Reduction */}
-          <div style={{ marginBottom: "22px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "14px" }}>
-              <span style={{ fontWeight: "600" }}>🎯 Skill Match Benchmark</span>
-              <span>{readinessScore}% Match</span>
+          <div className="dashboard-card-title-row">
+            <div>
+              <h2>Career Preparation Milestones</h2>
+              <p className="dashboard-card-sub">Quantitative breakdown of core development tracks</p>
             </div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${readinessScore}%` }}></div>
-            </div>
+            <span className="badge-saved">📊 LIVE DATA</span>
           </div>
 
-          {/* Metric 2: Roadmap Execution */}
-          <div style={{ marginBottom: "22px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "14px" }}>
-              <span style={{ fontWeight: "600" }}>🗺️ Learning Roadmap Completion</span>
-              <span>{roadmapPercent}%</span>
+          <div className="progress-milestones-list">
+            {/* Metric 1: Skill Gap Reduction */}
+            <div className="progress-milestone-item">
+              <div className="milestone-label-row">
+                <span className="milestone-name">🎯 Skill Match Benchmark</span>
+                <span className="milestone-value-tag">{readinessScore}% Match</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${readinessScore}%`, backgroundColor: "var(--nb-yellow)" }}></div>
+              </div>
             </div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${roadmapPercent}%`, background: "#10b981" }}></div>
-            </div>
-            <div style={{ display: "flex", gap: "15px", marginTop: "8px", fontSize: "12px", color: "#6b7280" }}>
-              <span>✅ {completedRoadmap} Completed</span>
-              <span>🔄 {inProgressRoadmap} In Progress</span>
-              <span>⏳ {Math.max(0, totalRoadmapItems - completedRoadmap - inProgressRoadmap)} Remaining</span>
-            </div>
-          </div>
 
-          {/* Metric 3: Portfolio Projects */}
-          <div style={{ marginBottom: "22px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "14px" }}>
-              <span style={{ fontWeight: "600" }}>💡 Portfolio Projects Built</span>
-              <span>{projectPercent}%</span>
+            {/* Metric 2: Roadmap Execution */}
+            <div className="progress-milestone-item">
+              <div className="milestone-label-row">
+                <span className="milestone-name">🗺️ Learning Roadmap Execution</span>
+                <span className="milestone-value-tag">{roadmapPercent}% Done</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${roadmapPercent}%`, backgroundColor: "var(--nb-mint)" }}></div>
+              </div>
+              <div className="milestone-breakdown-row">
+                <span className="breakdown-pill breakdown-completed">✅ {completedRoadmap} Completed</span>
+                <span className="breakdown-pill breakdown-progress">🔄 {inProgressRoadmap} In Progress</span>
+                <span className="breakdown-pill breakdown-remaining">⏳ {Math.max(0, totalRoadmapItems - completedRoadmap - inProgressRoadmap)} Remaining</span>
+              </div>
             </div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${projectPercent}%`, background: "#8b5cf6" }}></div>
-            </div>
-            <div style={{ display: "flex", gap: "15px", marginTop: "8px", fontSize: "12px", color: "#6b7280" }}>
-              <span>✅ {completedProjects} Completed</span>
-              <span>🔄 {inProgressProjects} In Progress</span>
-            </div>
-          </div>
 
-          {/* Metric 4: Interview Proficiency */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "14px" }}>
-              <span style={{ fontWeight: "600" }}>💼 Mock Interview Competency</span>
-              <span>{avgInterviewScore ? `${Math.round(avgInterviewScore * 10)}%` : "0%"}</span>
+            {/* Metric 3: Portfolio Projects */}
+            <div className="progress-milestone-item">
+              <div className="milestone-label-row">
+                <span className="milestone-name">💡 Portfolio Projects Built</span>
+                <span className="milestone-value-tag">{projectPercent}% Built</span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${projectPercent}%`, backgroundColor: "var(--nb-violet)" }}></div>
+              </div>
+              <div className="milestone-breakdown-row">
+                <span className="breakdown-pill breakdown-completed">✅ {completedProjects} Completed</span>
+                <span className="breakdown-pill breakdown-progress">🔄 {inProgressProjects} In Progress</span>
+              </div>
             </div>
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{
-                  width: avgInterviewScore ? `${avgInterviewScore * 10}%` : "0%",
-                  background: "#f59e0b",
-                }}
-              ></div>
+
+            {/* Metric 4: Interview Competency */}
+            <div className="progress-milestone-item">
+              <div className="milestone-label-row">
+                <span className="milestone-name">💼 Mock Interview Competency</span>
+                <span className="milestone-value-tag">{avgInterviewScore ? `${Math.round(avgInterviewScore * 10)}%` : "0%"} Score</span>
+              </div>
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: avgInterviewScore ? `${avgInterviewScore * 10}%` : "0%",
+                    backgroundColor: "var(--nb-cyan)",
+                  }}
+                ></div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Right Column: Skill Domain Breakdown */}
         <div className="dashboard-card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2>Skills Breakdown</h2>
-            <span className="badge-saved">{totalSkills} Skills Total</span>
+          <div className="dashboard-card-title-row">
+            <div>
+              <h2>Skills Breakdown</h2>
+              <p className="dashboard-card-sub">Verified resume technical competencies</p>
+            </div>
+            <span className="badge-saved">{totalSkills} Total</span>
           </div>
 
           {totalSkills > 0 ? (
-            Object.entries(categorized).map(([category, catSkills]) => {
-              if (!catSkills || catSkills.length === 0) return null;
-              return (
-                <div key={category} style={{ marginBottom: "18px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
-                    <span style={{ fontWeight: "600" }}>{category.replace(/([A-Z])/g, " $1")}</span>
-                    <span style={{ color: "#6b7280" }}>{catSkills.length} skills</span>
+            <div className="progress-skills-breakdown">
+              {Object.entries(categorized).map(([category, catSkills]) => {
+                if (!catSkills || catSkills.length === 0) return null;
+                return (
+                  <div key={category} className="skills-category-group">
+                    <div className="skills-category-header">
+                      <span className="category-title">{category.replace(/([A-Z])/g, " $1")}</span>
+                      <span className="category-count">{catSkills.length} skills</span>
+                    </div>
+                    <div className="skill-list" style={{ marginTop: "6px" }}>
+                      {catSkills.map((s) => (
+                        <SkillCard key={s} skill={s} status="verified" variant="pill" />
+                      ))}
+                    </div>
                   </div>
-                  <div className="skill-list" style={{ marginTop: "4px" }}>
-                    {catSkills.map((s) => (
-                      <span key={s} className="skill-tag" style={{ fontSize: "12px", padding: "4px 10px" }}>
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           ) : (
-            <div className="empty-state-card" style={{ padding: "15px" }}>
-              <p>No verified skills yet.</p>
-              <Link to="/resume" className="primary-btn" style={{ display: "inline-block", marginTop: "10px" }}>
-                Upload Resume
+            <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)" }}>
+              <span className="empty-icon">📋</span>
+              <h3>No Verified Skills Yet</h3>
+              <p>Upload your resume to automatically categorize and track your skills.</p>
+              <Link to="/resume" className="primary-btn" style={{ display: "inline-flex", marginTop: "14px" }}>
+                Upload Resume →
               </Link>
             </div>
           )}

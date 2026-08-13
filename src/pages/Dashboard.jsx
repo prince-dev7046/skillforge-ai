@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getProfile, getSkillForgeData } from "../services/api";
+import StatCard from "../components/StatCard";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -105,15 +106,19 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
+      {/* Header Banner */}
       <div className="dashboard-header">
         <div>
+          <div className="dashboard-role-badge">
+            🎯 TARGET CAREER: <strong>{targetRole}</strong>
+          </div>
           <h1>Welcome back{user?.name ? `, ${user.name}` : ""} 👋</h1>
-          <p>
-            Targeting: <strong>{targetRole}</strong> — Here is your real-time career readiness overview.
+          <p className="dashboard-header-sub">
+            Real-time career readiness analytics & personalized skill milestones.
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="dashboard-actions">
           <button
             className="secondary-btn"
             onClick={() => navigate("/resume")}
@@ -129,72 +134,94 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* 4 Stat Cards */}
+      {/* 4 Reusable Stat Cards */}
       <div className="stats-grid">
-        <div className="stat-card">
-          <p>Career Readiness</p>
-          <h2>{readinessScore}%</h2>
-          <span style={{ color: readinessScore >= 70 ? "#10b981" : "#f59e0b" }}>
-            {readinessLabel}
-          </span>
-        </div>
+        <StatCard
+          title="Career Readiness"
+          value={`${readinessScore}%`}
+          subtitle="Skill Benchmark"
+          badgeText={readinessLabel}
+          badgeVariant={readinessScore >= 70 ? "mint" : "orange"}
+          variant="yellow"
+          icon="🎯"
+        />
 
-        <div className="stat-card">
-          <p>Verified Skills</p>
-          <h2>{totalSkillsCount}</h2>
-          <span>{skillsArray.length > 0 ? `${skillsArray.slice(0, 2).join(", ")}...` : "None uploaded"}</span>
-        </div>
+        <StatCard
+          title="Verified Skills"
+          value={totalSkillsCount}
+          subtitle={skillsArray.length > 0 ? `${skillsArray.slice(0, 2).join(", ")}...` : "No skills uploaded"}
+          badgeText="Verified"
+          badgeVariant="default"
+          variant="violet"
+          icon="Verified"
+          icon="⚡"
+        />
 
-        <div className="stat-card">
-          <p>Roadmap Progress</p>
-          <h2>{roadmapPercent}%</h2>
-          <span>{completedModules} of {roadmapTotal || 0} modules done</span>
-        </div>
+        <StatCard
+          title="Roadmap Execution"
+          value={`${roadmapPercent}%`}
+          subtitle={`${completedModules} of ${roadmapTotal || 0} modules done`}
+          badgeText={`${completedModules}/${roadmapTotal || 0}`}
+          badgeVariant="mint"
+          variant="mint"
+          icon="🗺️"
+        />
 
-        <div className="stat-card">
-          <p>Portfolio Projects</p>
-          <h2>{totalProjects}</h2>
-          <span>{completedProjects} completed</span>
-        </div>
+        <StatCard
+          title="Portfolio Projects"
+          value={totalProjects}
+          subtitle={`${completedProjects} completed`}
+          badgeText={`${completedProjects} Done`}
+          badgeVariant="default"
+          variant="cyan"
+          icon="💡"
+        />
       </div>
 
+      {/* Two Column Grid */}
       <div className="dashboard-grid">
         {/* Skill Overview Card */}
         <div className="dashboard-card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-            <h2>Skill Profile Overview</h2>
-            <Link to="/skill-gap" style={{ fontSize: "14px", color: "#6366f1", fontWeight: "600" }}>
+          <div className="dashboard-card-title-row">
+            <div>
+              <h2>Skill Profile Overview</h2>
+              <p className="dashboard-card-sub">Top extracted technical competencies</p>
+            </div>
+            <Link to="/skill-gap" className="dashboard-card-link">
               Gap Analysis →
             </Link>
           </div>
 
           {topSkills.length > 0 ? (
-            topSkills.map((skill, idx) => {
-              // Estimate proficiency based on index or roadmap status
-              const isCompleted = roadmapProgress[skill] === "Completed";
-              const percent = isCompleted ? 100 : Math.max(60, 95 - idx * 8);
+            <div className="dashboard-skills-list">
+              {topSkills.map((skill, idx) => {
+                const isCompleted = roadmapProgress[skill] === "Completed";
+                const percent = isCompleted ? 100 : Math.max(60, 95 - idx * 8);
 
-              return (
-                <div className="skill" key={skill}>
-                  <div>
-                    <span style={{ fontWeight: "600" }}>{skill}</span>
-                    <span style={{ color: "#6b7280" }}>{percent}%</span>
+                return (
+                  <div className="skill" key={skill}>
+                    <div className="skill-info-row">
+                      <span className="skill-name">{skill}</span>
+                      <span className="skill-percent">{percent}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${percent}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${percent}%` }}
-                    ></div>
-                  </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           ) : (
-            <div className="empty-state-card" style={{ padding: "20px", margin: "10px 0" }}>
-              <p>No skills detected yet. Upload your resume to visualize your skill levels.</p>
+            <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)" }}>
+              <span className="empty-icon">📄</span>
+              <h3>No Skills Detected Yet</h3>
+              <p>Upload your PDF resume to extract skills and visualize your levels.</p>
               <button
                 className="primary-btn"
-                style={{ marginTop: "12px" }}
+                style={{ marginTop: "16px" }}
                 onClick={() => navigate("/resume")}
               >
                 Upload Resume
@@ -203,35 +230,46 @@ function Dashboard() {
           )}
         </div>
 
-        {/* Today's Goal Card */}
-        <div className="dashboard-card">
-          <h2>Today's Learning Focus</h2>
+        {/* Today's Learning Focus Card */}
+        <div className="dashboard-card dashboard-focus-card">
+          <div className="dashboard-card-title-row">
+            <div>
+              <h2>Today's Learning Focus</h2>
+              <p className="dashboard-card-sub">Recommended next action milestone</p>
+            </div>
+            <span className="dashboard-focus-badge">🔥 FOCUS</span>
+          </div>
 
           {todaysGoal ? (
-            <div>
-              <p className="goal-title">
-                {roadmapProgress[todaysGoal.skill] === "In Progress" ? "In Progress: " : "Next Milestone: "}
-                <strong>{todaysGoal.skill}</strong>
-              </p>
+            <div className="dashboard-focus-body">
+              <div className="goal-banner">
+                <span className="goal-status-tag">
+                  {roadmapProgress[todaysGoal.skill] === "In Progress" ? "In Progress" : "Next Milestone"}
+                </span>
+                <h3 className="goal-skill-title">{todaysGoal.skill}</h3>
+              </div>
 
-              <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "15px" }}>
+              <p className="goal-description">
                 {todaysGoal.reason || `Master ${todaysGoal.skill} to advance your career readiness.`}
               </p>
 
-              <div className="goal-progress">
-                <div
-                  className="goal-progress-fill"
-                  style={{
-                    width: roadmapProgress[todaysGoal.skill] === "In Progress" ? "50%" : "10%",
-                  }}
-                ></div>
+              <div className="goal-meter-box">
+                <div className="goal-meter-header">
+                  <span>Milestone Completion</span>
+                  <strong>{roadmapProgress[todaysGoal.skill] === "In Progress" ? "50%" : "0%"}</strong>
+                </div>
+                <div className="goal-progress">
+                  <div
+                    className="goal-progress-fill"
+                    style={{
+                      width: roadmapProgress[todaysGoal.skill] === "In Progress" ? "50%" : "10%",
+                    }}
+                  ></div>
+                </div>
               </div>
 
-              <div className="goal-footer" style={{ marginTop: "15px" }}>
-                <span>
-                  {roadmapProgress[todaysGoal.skill] === "In Progress" ? "50% in progress" : "Ready to begin"}
-                </span>
-                <span>⏱️ {todaysGoal.duration || "1 week"}</span>
+              <div className="goal-footer">
+                <span>⏱️ Time Est: {todaysGoal.duration || "1 week"}</span>
               </div>
 
               <button
@@ -239,35 +277,41 @@ function Dashboard() {
                 style={{ width: "100%", marginTop: "20px" }}
                 onClick={() => navigate("/roadmap")}
               >
-                Continue Learning
+                Continue Learning →
               </button>
             </div>
           ) : totalSkillsCount === 0 ? (
-            <div>
-              <p className="goal-title">Step 1: Upload Your Resume</p>
-              <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "20px" }}>
-                Begin your journey by uploading your resume to extract skills and find your skill gaps.
+            <div className="dashboard-focus-body">
+              <div className="goal-banner">
+                <span className="goal-status-tag">Step 1</span>
+                <h3 className="goal-skill-title">Upload Your Resume</h3>
+              </div>
+              <p className="goal-description">
+                Begin your journey by uploading your resume to extract verified skills and detect critical gaps.
               </p>
               <button
                 className="primary-btn"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginTop: "20px" }}
                 onClick={() => navigate("/resume")}
               >
-                Go to Resume Analyzer
+                Go to Resume Analyzer →
               </button>
             </div>
           ) : (
-            <div>
-              <p className="goal-title">Generate Your Personalized Roadmap</p>
-              <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "20px" }}>
-                Analyze skill gaps against {targetRole} requirements to unlock customized milestones.
+            <div className="dashboard-focus-body">
+              <div className="goal-banner">
+                <span className="goal-status-tag">Step 2</span>
+                <h3 className="goal-skill-title">Generate Personal Roadmap</h3>
+              </div>
+              <p className="goal-description">
+                Analyze skill gaps against {targetRole} requirements to unlock customized milestone modules.
               </p>
               <button
                 className="primary-btn"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginTop: "20px" }}
                 onClick={() => navigate("/skill-gap")}
               >
-                Analyze Skill Gaps
+                Analyze Skill Gaps →
               </button>
             </div>
           )}

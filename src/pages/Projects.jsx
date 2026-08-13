@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSkillForgeData, updateSkillForgeData, generateProjectsAI } from "../services/api";
+import StatCard from "../components/StatCard";
+import SkillCard from "../components/SkillCard";
 
 function Projects() {
   const [projects, setProjects] = useState([]);
@@ -164,24 +166,30 @@ function Projects() {
 
   return (
     <div className="projects-page">
-      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }}>
+      {/* Header Banner */}
+      <div className="dashboard-header">
         <div>
+          <div className="dashboard-role-badge">
+            🎯 TARGET CAREER: <strong>{targetRole}</strong>
+          </div>
           <h1>AI Portfolio Projects</h1>
-          <p>
-            Build real-world, industry-standard projects designed to bridge your skill gaps for <strong>{targetRole}</strong>.
+          <p className="dashboard-header-sub">
+            Build real-world, industry-standard projects customized to bridge your verified skill gaps.
           </p>
         </div>
 
-        <button
-          className="primary-btn"
-          onClick={handleGenerateProjects}
-          disabled={generating}
-          style={{ padding: "12px 20px", fontSize: "15px" }}
-        >
-          {generating ? "✨ Generating AI Projects..." : "✨ Refresh / Generate Projects"}
-        </button>
+        <div className="dashboard-actions">
+          <button
+            className="primary-btn"
+            onClick={handleGenerateProjects}
+            disabled={generating}
+          >
+            {generating ? "✨ Generating Projects..." : "✨ Refresh AI Projects"}
+          </button>
+        </div>
       </div>
 
+      {/* Status Banners */}
       {error && (
         <div className="status-banner error" style={{ marginBottom: "20px" }}>
           <span>❌</span>
@@ -196,43 +204,56 @@ function Projects() {
         </div>
       )}
 
+      {/* Overview Stat Cards Grid */}
       {projects.length > 0 && (
-        <div className="summary-grid" style={{ marginBottom: "25px" }}>
-          <div className="summary-card">
-            <span className="summary-icon">💡</span>
-            <h3>{projects.length}</h3>
-            <p>Total Projects</p>
-          </div>
-          <div className="summary-card">
-            <span className="summary-icon">🔄</span>
-            <h3>{inProgressCount}</h3>
-            <p>In Progress</p>
-          </div>
-          <div className="summary-card">
-            <span className="summary-icon">✅</span>
-            <h3>{completedCount}</h3>
-            <p>Completed</p>
-          </div>
+        <div className="stats-grid" style={{ marginBottom: "28px" }}>
+          <StatCard
+            title="Total Projects"
+            value={projects.length}
+            subtitle="Curated Portfolio Specs"
+            variant="yellow"
+            icon="💡"
+          />
+          <StatCard
+            title="In Progress"
+            value={inProgressCount}
+            subtitle="Active Development"
+            badgeText="Active"
+            badgeVariant="orange"
+            variant="orange"
+            icon="🔄"
+          />
+          <StatCard
+            title="Completed"
+            value={completedCount}
+            subtitle="Portfolio Verified"
+            badgeText={`${completedCount}/${projects.length}`}
+            badgeVariant="mint"
+            variant="mint"
+            icon="✅"
+          />
         </div>
       )}
 
+      {/* Empty State */}
       {projects.length === 0 ? (
-        <div className="empty-state-card">
+        <div className="empty-state-card" style={{ border: "var(--nb-border-dashed)", margin: "40px auto", maxWidth: "600px" }}>
           <span className="empty-icon">💡</span>
           <h3>No Projects Generated Yet</h3>
           <p>
-            Click the "Refresh / Generate Projects" button to get customized, portfolio-ready project specifications aligned with your target career.
+            Click the button below to generate customized, portfolio-ready project specifications aligned with {targetRole}.
           </p>
           <button
             className="primary-btn"
-            style={{ marginTop: "15px" }}
+            style={{ marginTop: "18px" }}
             onClick={handleGenerateProjects}
             disabled={generating}
           >
-            {generating ? "Generating..." : "Generate AI Projects Now"}
+            {generating ? "✨ Generating..." : "⚡ Generate AI Projects Now"}
           </button>
         </div>
       ) : (
+        /* Projects Grid */
         <div className="projects-grid">
           {projects.map((project, pIdx) => {
             if (!project) return null;
@@ -247,23 +268,20 @@ function Projects() {
             return (
               <div
                 key={projectId}
-                className={`project-card ${isCompleted ? "project-completed" : ""}`}
+                className={`project-card ${isCompleted ? "project-completed" : isInProgress ? "project-in-progress" : ""}`}
               >
-                <div className="project-header">
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                      <span
-                        className={`badge-difficulty ${
-                          (project.difficulty || "intermediate").toLowerCase()
-                        }`}
-                      >
-                        {project.difficulty || "Intermediate"}
-                      </span>
-                      <span style={{ fontSize: "13px", color: "#6b7280" }}>
-                        ⏱️ {project.estimatedDuration || "2 weeks"}
-                      </span>
-                    </div>
-                    <h2>{project.title || `Project ${pIdx + 1}`}</h2>
+                <div className="project-card-header">
+                  <div className="project-tags-row">
+                    <span
+                      className={`badge-difficulty ${
+                        (project.difficulty || "intermediate").toLowerCase()
+                      }`}
+                    >
+                      {project.difficulty || "Intermediate"}
+                    </span>
+                    <span className="project-duration-tag">
+                      ⏱️ {project.estimatedDuration || "2 weeks"}
+                    </span>
                   </div>
 
                   <span
@@ -279,74 +297,77 @@ function Projects() {
                   </span>
                 </div>
 
-                <p className="project-description">{project.description || "Portfolio project to strengthen technical skills."}</p>
+                <div className="project-card-body">
+                  <h2 className="project-title">{project.title || `Project ${pIdx + 1}`}</h2>
 
-                {project.whyThisProject && (
-                  <div className="project-why">
-                    <strong>🎯 Career Impact:</strong>
-                    <p>{project.whyThisProject}</p>
-                  </div>
-                )}
+                  <p className="project-description">
+                    {project.description || "Portfolio project to strengthen technical skills."}
+                  </p>
 
-                {featuresList.length > 0 && (
-                  <div className="project-features">
-                    <strong>✨ Core Features to Implement:</strong>
-                    <ul>
-                      {featuresList.map((feat, idx) => (
-                        <li key={idx}>{feat}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {techStackList.length > 0 && (
-                  <div style={{ marginTop: "15px" }}>
-                    <strong style={{ fontSize: "13px", color: "#4b5563", display: "block", marginBottom: "6px" }}>
-                      🛠️ Suggested Tech Stack:
-                    </strong>
-                    <div className="skill-list">
-                      {techStackList.map((tech) => (
-                        <span key={tech} className="skill-tag" style={{ background: "#eef2ff", color: "#4338ca", fontSize: "12px", padding: "4px 10px" }}>
-                          {tech}
-                        </span>
-                      ))}
+                  {project.whyThisProject && (
+                    <div className="project-why">
+                      <strong>🎯 Career Impact:</strong>
+                      <p>{project.whyThisProject}</p>
                     </div>
-                  </div>
-                )}
-
-                <div className="project-actions">
-                  {isCompleted ? (
-                    <button
-                      className="btn-completed"
-                      onClick={() => handleStatusChange(projectId, "In Progress")}
-                    >
-                      ✅ Completed (Click to Reopen)
-                    </button>
-                  ) : isInProgress ? (
-                    <div style={{ display: "flex", gap: "10px", width: "100%" }}>
-                      <button
-                        className="success-btn"
-                        style={{ flex: 1 }}
-                        onClick={() => handleStatusChange(projectId, "Completed")}
-                      >
-                        ✅ Mark as Completed
-                      </button>
-                      <button
-                        className="secondary-btn"
-                        onClick={() => handleStatusChange(projectId, "Not Started")}
-                      >
-                        Pause
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      className="primary-btn"
-                      style={{ width: "100%" }}
-                      onClick={() => handleStatusChange(projectId, "In Progress")}
-                    >
-                      🚀 Start Project
-                    </button>
                   )}
+
+                  {featuresList.length > 0 && (
+                    <div className="project-features">
+                      <h4>✨ Core Features to Implement</h4>
+                      <ul className="project-features-list">
+                        {featuresList.map((feat, idx) => (
+                          <li key={idx}>{feat}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {techStackList.length > 0 && (
+                    <div className="project-tech-box">
+                      <h4>🛠️ Suggested Tech Stack</h4>
+                      <div className="skill-list" style={{ marginTop: "6px" }}>
+                        {techStackList.map((tech) => (
+                          <SkillCard key={tech} skill={tech} status="verified" variant="pill" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="project-actions">
+                    {isCompleted ? (
+                      <button
+                        className="btn-completed"
+                        onClick={() => handleStatusChange(projectId, "In Progress")}
+                        style={{ cursor: "pointer" }}
+                      >
+                        ✅ Completed (Click to Reopen)
+                      </button>
+                    ) : isInProgress ? (
+                      <div className="project-action-group">
+                        <button
+                          className="success-btn"
+                          style={{ flex: 1 }}
+                          onClick={() => handleStatusChange(projectId, "Completed")}
+                        >
+                          ✅ Mark as Completed
+                        </button>
+                        <button
+                          className="secondary-btn"
+                          onClick={() => handleStatusChange(projectId, "Not Started")}
+                        >
+                          Pause
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="primary-btn"
+                        style={{ width: "100%" }}
+                        onClick={() => handleStatusChange(projectId, "In Progress")}
+                      >
+                        🚀 Start Project
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
