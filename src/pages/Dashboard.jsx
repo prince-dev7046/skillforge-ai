@@ -4,45 +4,48 @@ import SkillCard from "../components/SkillCard";
 import ProgressCard from "../components/ProgressCard";
 
 function Dashboard() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user, skillData } = useContext(UserContext);
+  const [analytics, setAnalytics] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    async function fetchAnalytics() {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          console.log("No authentication token found");
-          return;
-        }
-
-        const response = await fetch(
-          "http://localhost:5000/api/user/profile",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch profile");
-        }
-
-        setUser(data);
-      } catch (error) {
-        console.error("Profile Fetch Error:", error);
+        setLoadingAnalytics(true);
+        const data = await api.getProgressAnalytics();
+        setAnalytics(data);
+      } catch (err) {
+        console.error("Failed to load progress analytics:", err);
       } finally {
-        setLoading(false);
+        setLoadingAnalytics(false);
       }
-    };
+    }
+    if (user) {
+      fetchAnalytics();
+    }
+  }, [user, skillData]);
 
-    fetchProfile();
-  }, []);
+  // Skill calculation
+  const resumeSkills = skillData?.resumeSkills || {};
+  const flatSkillsList = Object.values(resumeSkills).flat();
+  const totalSkillsCount = flatSkillsList.length;
+
+  // Roadmap calculation
+  const roadmap = skillData?.roadmap || [];
+  const totalRoadmapCount = roadmap.length;
+  const completedRoadmapCount = roadmap.filter((r) => r.status === "Completed").length;
+  const roadmapProgressPercent = totalRoadmapCount > 0 
+    ? Math.round((completedRoadmapCount / totalRoadmapCount) * 100)
+    : 0;
+
+  // Projects calculation
+  const projects = skillData?.projects || [];
+  const totalProjectsCount = projects.length;
+  const completedProjectsCount = projects.filter((p) => p.status === "Completed").length;
+
+  // Next roadmap goal
+  const nextGoalItem = roadmap.find((r) => r.status !== "Completed");
 
   return (
     <div className="dashboard">

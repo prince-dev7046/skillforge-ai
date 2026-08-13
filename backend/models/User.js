@@ -48,6 +48,104 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+
+    roadmap: {
+      type: [
+        {
+          id: Number,
+          skill: String,
+          priority: Number,
+          difficulty: String,
+          duration: String,
+          reason: String,
+          topics: [String],
+          miniProject: String,
+          prerequisites: [String],
+          status: {
+            type: String,
+            enum: ["Not Started", "In Progress", "Completed"],
+            default: "Not Started",
+          },
+        }
+      ],
+      default: [],
+    },
+
+    projects: {
+      type: [
+        {
+          title: String,
+          description: String,
+          difficulty: String,
+          duration: String,
+          requiredSkills: [String],
+          whyProject: String,
+          features: String,
+          suggestedStack: String,
+          status: {
+            type: String,
+            enum: ["Not Started", "In Progress", "Completed"],
+            default: "Not Started",
+          },
+        }
+      ],
+      default: [],
+    },
+
+    interviewHistory: {
+      type: [
+        {
+          targetRole: String,
+          interviewType: String,
+          difficulty: String,
+          date: {
+            type: Date,
+            default: Date.now,
+          },
+          questions: [
+            {
+              question: String,
+              userAnswer: {
+                type: String,
+                default: "",
+              },
+              score: {
+                type: Number,
+                default: 0,
+              },
+              feedback: {
+                strengths: { type: String, default: "" },
+                weaknesses: { type: String, default: "" },
+                improvedAnswer: { type: String, default: "" },
+                tips: { type: String, default: "" },
+              },
+            }
+          ],
+        }
+      ],
+      default: [],
+    },
+
+    notifications: {
+      type: [
+        {
+          text: String,
+          type: {
+            type: String,
+            default: "info",
+          },
+          date: {
+            type: Date,
+            default: Date.now,
+          },
+          read: {
+            type: Boolean,
+            default: false,
+          },
+        }
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,

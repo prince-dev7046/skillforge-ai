@@ -1,20 +1,27 @@
-import "../App.css";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "../context/UserContext";
 import { extractTextFromPDF } from "../utils/pdfExtractor";
 import { extractSkills } from "../utils/skillExtractor";
 
 function Resume() {
-  const [extractedSkills, setExtractedSkills] = useState({});
+  const { skillData, updateSkillData } = useContext(UserContext);
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [extractedText, setExtractedText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [progressText, setProgressText] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   const handleFile = (selectedFile) => {
+    setErrorText("");
     if (!selectedFile) return;
 
     if (selectedFile.type !== "application/pdf") {
-      alert("Please upload a PDF file.");
+      setErrorText("Invalid file type. Please upload a PDF resume.");
+      return;
+    }
+
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setErrorText("File is too large. Maximum size allowed is 5 MB.");
       return;
     }
 
@@ -29,14 +36,13 @@ function Resume() {
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDragging(false);
-
     const droppedFile = event.dataTransfer.files[0];
     handleFile(droppedFile);
   };
 
   const handleAnalyze = async () => {
     if (!file) {
-      alert("Please select a resume first.");
+      setErrorText("Please select a resume first.");
       return;
     }
 
@@ -59,9 +65,10 @@ function Resume() {
       );
     } catch (error) {
       console.error("Resume analysis failed:", error);
-      alert("Could not analyze the resume.");
+      setErrorText(error.message || "Failed to analyze the resume. Please check the file formatting.");
     } finally {
       setIsAnalyzing(false);
+      setProgressText("");
     }
   };
 

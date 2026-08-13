@@ -1,41 +1,24 @@
-import { useEffect, useState } from "react";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 
 function Roadmap() {
-  const [roadmap, setRoadmap] = useState([]);
-  const [targetRole, setTargetRole] = useState("");
-  const [progress, setProgress] = useState({});
-  const [isAIPersonalized, setIsAIPersonalized] = useState(false);
+  const { skillData, updateSkillData } = useContext(UserContext);
 
-  useEffect(() => {
-    const savedRole = localStorage.getItem("targetRole");
-    const savedSkillGap = localStorage.getItem("skillGap");
-    const savedAIAnalysis = localStorage.getItem("aiSkillAnalysis");
-    const savedProgress = localStorage.getItem("roadmapProgress");
+  const roadmap = skillData?.roadmap || [];
+  const targetRole = skillData?.targetRole || "";
+  const isAIPersonalized = skillData?.aiSkillAnalysis && Object.keys(skillData.aiSkillAnalysis).length > 0;
 
-    if (savedRole) {
-      setTargetRole(savedRole);
-    }
-
-    if (savedProgress) {
-      try {
-        setProgress(JSON.parse(savedProgress));
-      } catch (error) {
-        console.error("Error reading roadmap progress:", error);
-        setProgress({});
-      }
-    }
-
-    if (!savedSkillGap && !savedAIAnalysis) {
-      return;
-    }
-
-    let skillGap = {};
-    let aiAnalysis = {};
-
+  const updateSkillStatus = async (skillName, newStatus) => {
     try {
-      if (savedSkillGap) {
-        skillGap = JSON.parse(savedSkillGap);
-      }
+      const updatedRoadmap = roadmap.map((item) =>
+        item.skill === skillName ? { ...item, status: newStatus } : item
+      );
+      
+      // Update roadmapProgress for backward compatibility and stats tracking
+      const updatedProgress = {
+        ...(skillData.roadmapProgress || {}),
+        [skillName]: newStatus,
+      };
 
       if (savedAIAnalysis) {
         aiAnalysis = JSON.parse(savedAIAnalysis);
@@ -431,14 +414,6 @@ function Roadmap() {
     roadmap.length > 0
       ? Math.round((completedCount / roadmap.length) * 100)
       : 0;
-
-  const inProgressCount = roadmap.filter(
-    (item) => progress[item.skill] === "In Progress"
-  ).length;
-
-  const notStartedCount = roadmap.filter(
-    (item) => !progress[item.skill]
-  ).length;
 
   return (
     <div className="roadmap-page">

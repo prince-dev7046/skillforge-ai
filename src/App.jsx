@@ -11,6 +11,7 @@ import Roadmap from "./pages/Roadmap";
 import Projects from "./pages/Projects";
 import Interview from "./pages/Interview";
 import Progress from "./pages/Progress";
+import Profile from "./pages/Profile";
 
 import Dashboard from "./pages/Dashboard";
 
@@ -98,6 +99,15 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Progress />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 }
               />

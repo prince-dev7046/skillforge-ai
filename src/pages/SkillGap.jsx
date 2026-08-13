@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useState, useEffect } from "react";
+import { UserContext } from "../context/UserContext";
 
 const roleSkills = {
   "Full Stack Developer": [
@@ -50,127 +51,92 @@ const roleSkills = {
 const skillRecommendations = {
   HTML: {
     priority: "High",
-    description:
-      "Learn HTML to build the structure and content of modern web pages.",
+    description: "Learn HTML to build the structure and content of modern web pages.",
     topics: "Semantic HTML, forms, tables, accessibility",
   },
-
   CSS: {
     priority: "High",
-    description:
-      "Learn CSS to create responsive and visually appealing web interfaces.",
+    description: "Learn CSS to create responsive and visually appealing web interfaces.",
     topics: "Flexbox, Grid, responsive design, animations",
   },
-
   JavaScript: {
     priority: "High",
-    description:
-      "JavaScript is essential for creating interactive web applications.",
+    description: "JavaScript is essential for creating interactive web applications.",
     topics: "ES6, DOM, async/await, APIs",
   },
-
   React: {
     priority: "High",
-    description:
-      "React is widely used to build modern and component-based frontend applications.",
+    description: "React is widely used to build modern and component-based frontend applications.",
     topics: "Components, Props, State, Hooks, React Router",
   },
-
   "Node.js": {
     priority: "High",
-    description:
-      "Node.js allows you to build scalable backend applications using JavaScript.",
+    description: "Node.js allows you to build scalable backend applications using JavaScript.",
     topics: "Modules, Express.js, REST APIs, asynchronous programming",
   },
-
   "Express.js": {
     priority: "Medium",
-    description:
-      "Express.js is a popular Node.js framework for building backend APIs.",
+    description: "Express.js is a popular Node.js framework for building backend APIs.",
     topics: "Routes, middleware, controllers, REST APIs",
   },
-
   MongoDB: {
     priority: "Medium",
-    description:
-      "MongoDB is a NoSQL database commonly used in modern web applications.",
+    description: "MongoDB is a NoSQL database commonly used in modern web applications.",
     topics: "Collections, documents, CRUD, queries, indexes",
   },
-
   SQL: {
     priority: "High",
-    description:
-      "SQL is essential for working with relational databases and structured data.",
+    description: "SQL is essential for working with relational databases and structured data.",
     topics: "SELECT, JOIN, GROUP BY, subqueries, database design",
   },
-
   Git: {
     priority: "Medium",
-    description:
-      "Git is essential for version control and collaborating on software projects.",
+    description: "Git is essential for version control and collaborating on software projects.",
     topics: "Commit, branch, merge, pull, push, GitHub",
   },
-
   Python: {
     priority: "High",
-    description:
-      "Python is one of the most important programming languages for machine learning and data science.",
+    description: "Python is one of the most important programming languages for ML/Data Science.",
     topics: "Functions, OOP, modules, virtual environments",
   },
-
   NumPy: {
     priority: "High",
-    description:
-      "NumPy provides powerful tools for numerical computing and array operations.",
+    description: "NumPy provides powerful tools for numerical computing and array operations.",
     topics: "Arrays, indexing, broadcasting, linear algebra",
   },
-
   Pandas: {
     priority: "High",
-    description:
-      "Pandas is essential for cleaning, transforming, and analyzing datasets.",
+    description: "Pandas is essential for cleaning, transforming, and analyzing datasets.",
     topics: "DataFrames, filtering, grouping, merging, data cleaning",
   },
-
   Matplotlib: {
     priority: "Medium",
-    description:
-      "Matplotlib helps you visualize datasets and understand patterns in data.",
+    description: "Matplotlib helps you visualize datasets and understand patterns in data.",
     topics: "Plots, charts, subplots, customization",
   },
-
   "Scikit-learn": {
     priority: "High",
-    description:
-      "Scikit-learn provides tools for building and evaluating machine learning models.",
+    description: "Scikit-learn provides tools for building and evaluating machine learning models.",
     topics: "Preprocessing, regression, classification, model evaluation",
   },
-
   "Machine Learning": {
     priority: "High",
-    description:
-      "Machine learning is fundamental for developing predictive and intelligent applications.",
+    description: "Machine learning is fundamental for developing predictive applications.",
     topics: "Supervised learning, unsupervised learning, model evaluation",
   },
-
   Statistics: {
     priority: "High",
-    description:
-      "Statistics provides the mathematical foundation needed for data analysis and machine learning.",
+    description: "Statistics provides the mathematical foundation needed for data analysis.",
     topics: "Probability, distributions, hypothesis testing, correlation",
   },
-
   Java: {
     priority: "High",
-    description:
-      "Java is widely used for backend development and enterprise applications.",
+    description: "Java is widely used for backend development and enterprise applications.",
     topics: "OOP, collections, exceptions, multithreading, Spring",
   },
-
   "REST API": {
     priority: "High",
-    description:
-      "REST APIs allow frontend and backend applications to communicate with each other.",
+    description: "REST APIs allow frontend and backend applications to communicate.",
     topics: "HTTP methods, endpoints, JSON, status codes, authentication",
   },
 };
@@ -183,6 +149,7 @@ function SkillGap() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
 
+  // Sync selectedRole state from MongoDB user targetRole on mount/user load
   useEffect(() => {
     localStorage.setItem("targetRole", selectedRole);
 
@@ -203,7 +170,7 @@ function SkillGap() {
         setResumeSkills([]);
       }
     }
-  }, []);
+  }, [user]);
 
   const requiredSkills = roleSkills[selectedRole] || [];
 
@@ -246,6 +213,11 @@ function SkillGap() {
   };
 
   const analyzeWithAI = async () => {
+    if (resumeSkills.length === 0) {
+      setAiError("Please upload your resume first to detect current skills.");
+      return;
+    }
+    
     try {
       setAiLoading(true);
       setAiError("");
@@ -272,11 +244,14 @@ function SkillGap() {
       localStorage.setItem("aiSkillAnalysis", JSON.stringify(data));
     } catch (error) {
       console.error("AI Skill Gap Error:", error);
-      setAiError(error.message);
+      setAiError(error.message || "Something went wrong during Gemini AI evaluation. Please try again.");
     } finally {
       setAiLoading(false);
     }
   };
+
+  const aiResult = skillData.aiSkillAnalysis || {};
+  const hasAIResult = aiResult && Object.keys(aiResult).length > 0 && aiResult.overallAssessment;
 
   return (
     <div className="skill-gap-page">
@@ -519,8 +494,11 @@ function SkillGap() {
                     </span>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <p>No missing skills! 🎉</p>
+              )}
+            </div>
+          </div>
 
             {/* Learning Priorities */}
             {aiResult.learningPriorities?.length > 0 && (
@@ -550,8 +528,117 @@ function SkillGap() {
                         </p>
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* AI trigger section */}
+          <div className="ai-analysis-section">
+            <h2>🤖 AI Skill Gap Analysis</h2>
+            <p>Request a personalized, industry-targeted skill gap audit powered by Gemini AI.</p>
+            <button
+              onClick={analyzeWithAI}
+              disabled={aiLoading}
+              className="ai-analysis-button"
+            >
+              {aiLoading ? "Consulting Gemini AI..." : "✨ Analyze with AI"}
+            </button>
+
+            {aiError && (
+              <p className="ai-error" style={{ marginTop: "var(--space-md)", color: "var(--neo-pink)" }}>
+                ❌ {aiError}
+              </p>
+            )}
+
+            {/* AI Career Assessment Dashboard */}
+            {hasAIResult && (
+              <div className="ai-result" style={{ marginTop: "var(--space-xl)" }}>
+                <div className="ai-result-header">
+                  <h3>🎯 Gemini AI Career Analysis</h3>
+                  <p><strong>Target Role:</strong> {aiResult.targetRole}</p>
                 </div>
+
+                <div className="ai-summary-grid">
+                  <div className="ai-summary-card">
+                    <span className="ai-card-icon">📊</span>
+                    <h4>Skill Match Score</h4>
+                    <div className="ai-match-percentage">{aiResult.skillMatchPercentage}%</div>
+                    <div className="ai-progress-container">
+                      <div
+                        className="ai-progress-bar"
+                        style={{ width: `${aiResult.skillMatchPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="ai-summary-card">
+                    <span className="ai-card-icon">💼</span>
+                    <h4>Career Readiness</h4>
+                    <div className="ai-readiness">{aiResult.careerReadiness}</div>
+                  </div>
+                </div>
+
+                {aiResult.overallAssessment && (
+                  <div className="ai-card ai-assessment" style={{ borderLeft: "6px solid var(--neo-cyan)" }}>
+                    <h3>🎯 Overall Assessment</h3>
+                    <p>{aiResult.overallAssessment}</p>
+                  </div>
+                )}
+
+                {aiResult.criticalGaps?.length > 0 && (
+                  <div className="ai-card" style={{ borderLeft: "6px solid var(--neo-pink)" }}>
+                    <h3>⚠️ Critical Skill Gaps</h3>
+                    <div className="ai-skill-list">
+                      {aiResult.criticalGaps.map((skill) => (
+                        <span className="ai-skill ai-skill-missing" key={skill}>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {aiResult.learningPriorities?.length > 0 && (
+                  <div className="ai-card">
+                    <h3>🔥 Learning Priorities</h3>
+                    <div className="learning-priority-list">
+                      {aiResult.learningPriorities.map((item, index) => (
+                        <div className="learning-priority-card" key={`${item.skill}-${index}`}>
+                          <div className="priority-number">{index + 1}</div>
+                          <div className="priority-content">
+                            <div className="priority-title-row">
+                              <h4>{item.skill}</h4>
+                              <span className={`ai-priority-badge ${(item.priority || "Medium").toLowerCase()}`}>
+                                {item.priority} Priority
+                              </span>
+                            </div>
+                            <p>{item.reason}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {aiResult.recommendation && (
+                  <div className="ai-card ai-recommendation" style={{ borderLeft: "6px solid var(--neo-green)" }}>
+                    <h3>💡 Personalized Recommendation</h3>
+                    <p>{aiResult.recommendation}</p>
+                  </div>
+                )}
+
+                {aiResult.nextSteps?.length > 0 && (
+                  <div className="ai-card">
+                    <h3>🚀 Actionable Next Steps</h3>
+                    <ol className="ai-next-steps">
+                      {aiResult.nextSteps.map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
               </div>
             )}
 
@@ -576,8 +663,8 @@ function SkillGap() {
               </div>
             )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

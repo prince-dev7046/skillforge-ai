@@ -41,6 +41,11 @@ function Sidebar() {
           <span className="sidebar-icon">📊</span>
           <span>Progress</span>
         </NavLink>
+
+        <NavLink to="/profile" className="sidebar-link">
+          <span className="sidebar-icon">👤</span>
+          <span>My Profile</span>
+        </NavLink>
       </div>
 
     </aside>

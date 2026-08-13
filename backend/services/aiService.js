@@ -187,6 +187,152 @@ Return ONLY the JSON object.
   return JSON.parse(cleanedText);
 }
 
+async function generateProjectRecommendations(resumeSkills, targetRole, skillGaps, learningPriorities) {
+  const prompt = `
+You are an expert AI Career Coach. 
+
+Generate exactly 3-4 personalized project recommendations for a student aiming to become a "${targetRole}".
+
+Candidate Current Skills:
+${resumeSkills.join(", ")}
+
+Skill Gaps identified:
+${skillGaps.join(", ")}
+
+Learning Priorities:
+${learningPriorities.join(", ")}
+
+For each project, suggest standard, high-impact features and stacks that will help bridge their skill gaps.
+
+Return ONLY valid JSON.
+Do NOT use markdown.
+Do NOT include code fences.
+Do NOT add any text before or after the JSON.
+
+Use EXACTLY this structure (a JSON array of project objects):
+
+[
+  {
+    "title": "Project Title",
+    "description": "Short 2-3 sentence overview describing the project and its value.",
+    "difficulty": "Beginner, Intermediate, or Advanced",
+    "duration": "e.g., 2 weeks, 1 month",
+    "requiredSkills": ["Skill A", "Skill B", "Skill C"],
+    "whyProject": "Why this project is highly relevant to their target career and skill gaps.",
+    "features": "Bullet points of key features they should build.",
+    "suggestedStack": "Suggested technologies, databases, frameworks, libraries to use."
+  }
+]
+`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3.5-flash-lite",
+    contents: prompt,
+  });
+
+  const text = response.text.trim();
+  const cleanedText = text
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  return JSON.parse(cleanedText);
+}
+
+async function generateInterviewQuestions(targetRole, type, difficulty, resumeSkills) {
+  const prompt = `
+You are a technical interviewer for a top tier technology firm.
+
+Generate exactly 3 mock interview questions for a candidate interviewing for the role of "${targetRole}".
+
+Interview Details:
+- Type: ${type} (Technical, HR, Behavioral, or Mixed)
+- Difficulty: ${difficulty} (Beginner, Intermediate, or Advanced)
+- Candidate skills for context: ${resumeSkills.join(", ")}
+
+Return ONLY valid JSON.
+Do NOT use markdown.
+Do NOT include code fences.
+Do NOT add any text before or after the JSON.
+
+Use EXACTLY this structure (a JSON array of questions):
+
+[
+  {
+    "question": "Question text here..."
+  }
+]
+`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3.5-flash-lite",
+    contents: prompt,
+  });
+
+  const text = response.text.trim();
+  const cleanedText = text
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  return JSON.parse(cleanedText);
+}
+
+async function evaluateInterviewAnswer(question, userAnswer, targetRole, resumeSkills) {
+  const prompt = `
+You are an expert technical interviewer evaluating a candidate's response.
+
+Candidate Target Role: ${targetRole}
+Candidate Skills: ${resumeSkills.join(", ")}
+
+Interview Question:
+"${question}"
+
+Candidate Answer:
+"${userAnswer}"
+
+Evaluate the candidate's answer constructively and give actionable feedback.
+
+Return ONLY valid JSON.
+Do NOT use markdown.
+Do NOT include code fences.
+Do NOT add any text before or after the JSON.
+
+Use EXACTLY this structure:
+
+{
+  "score": 0,
+  "strengths": "Brief bulleted summary of what was done well in their answer.",
+  "weaknesses": "Brief bulleted summary of what was missing or incorrect.",
+  "improvedAnswer": "A professional model answer for this question that the candidate can study.",
+  "tips": "Tips for improving communication, formatting, or handling similar questions in the future."
+}
+
+Rules:
+- Score must be a number out of 10 (e.g. 7 or 8).
+- Keep feedback structured and directly relevant.
+`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3.5-flash-lite",
+    contents: prompt,
+  });
+
+  const text = response.text.trim();
+  const cleanedText = text
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  return JSON.parse(cleanedText);
+}
+
 module.exports = {
   analyzeSkillGap,
+  generateProjectRecommendations,
+  generateInterviewQuestions,
+  evaluateInterviewAnswer,
 };
