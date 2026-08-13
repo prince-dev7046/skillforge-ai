@@ -52,11 +52,13 @@ function Navbar() {
       </div>
 
       <div className="navbar-right">
-        <button className="notification-btn">🔔</button>
+        <button className="notification-btn" aria-label="Notifications">
+          🔔
+        </button>
 
         <div className="profile">
           <div className="profile-avatar">
-            {user ? user.name.charAt(0).toUpperCase() : "P"}
+            {user?.name ? user.name.charAt(0).toUpperCase() : "P"}
           </div>
 
           <div className="profile-info">
@@ -64,7 +66,7 @@ function Navbar() {
               {user ? user.name : "Loading..."}
             </span>
 
-            <span className="profile-role">
+            <span className="profile-role-badge">
               Student
             </span>
           </div>
