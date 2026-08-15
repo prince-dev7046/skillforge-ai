@@ -5,8 +5,6 @@ import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import Resume from "./pages/Resume";
 import SkillGap from "./pages/SkillGap";
 import Roadmap from "./pages/Roadmap";
@@ -19,17 +17,13 @@ import Dashboard from "./pages/Dashboard";
 
 function AppLayout() {
   const location = useLocation();
-  const isAuthPage = ["/login", "/forgot-password", "/reset-password"].some(
-    (path) => location.pathname === path || location.pathname.startsWith("/reset-password/")
-  );
+  const isAuthPage = location.pathname === "/login";
 
   if (isAuthPage) {
     return (
       <main className="auth-main">
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </main>
     );
