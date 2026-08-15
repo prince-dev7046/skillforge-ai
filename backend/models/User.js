@@ -63,6 +63,17 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: [],
     },
+
+    // Password reset fields
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

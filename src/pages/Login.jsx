@@ -184,6 +184,28 @@ function Login() {
                 />
               </div>
 
+              {!isRegister && (
+                <div style={{ textAlign: "right", marginBottom: "15px" }}>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/forgot-password")}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#0066cc",
+                      cursor: "pointer",
+                      textDecoration: "none",
+                      fontSize: "0.9rem",
+                      padding: "0",
+                    }}
+                    onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                    onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              )}
+
               <button
                 type="submit"
                 className="auth-submit-btn"

@@ -1,0 +1,351 @@
+/* ==========================================================================
+   AUTH.CSS — Password Reset & Authentication Pages Styling
+   Follows SkillForge AI Neo-Brutalist Design System
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   AUTH CONTAINER — Main layout for password reset flows
+   -------------------------------------------------------------------------- */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--space-md);
+  background: var(--nb-bg);
+}
+
+/* --------------------------------------------------------------------------
+   AUTH CARD — Centered form card with neo-brutalist styling
+   -------------------------------------------------------------------------- */
+.auth-card {
+  background: var(--nb-surface);
+  border: var(--nb-border);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-2xl) var(--space-xl);
+  max-width: 440px;
+  width: 100%;
+  box-shadow: var(--nb-shadow-lg);
+  transition: var(--nb-transition, all 0.2s ease);
+}
+
+.auth-card:hover {
+  box-shadow: var(--nb-shadow-xl);
+  transform: translate(-2px, -2px);
+}
+
+.auth-card h1 {
+  font-family: var(--font-display, 'Sora', sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: var(--space-xs);
+  text-align: center;
+  color: var(--nb-black);
+  letter-spacing: -0.03em;
+}
+
+.auth-card-description {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 14px;
+  color: #475569;
+  text-align: center;
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   FORM ELEMENTS
+   -------------------------------------------------------------------------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.form-group label {
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--nb-black);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border: var(--nb-border-thin);
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 15px;
+  color: var(--nb-black);
+  background: var(--nb-surface);
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:hover {
+  border-color: var(--nb-violet);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--nb-violet);
+  box-shadow: 0 0 0 3px rgba(99, 68, 245, 0.15);
+}
+
+.form-group input:disabled {
+  background: var(--nb-surface-alt);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   BUTTONS
+   -------------------------------------------------------------------------- */
+.auth-button {
+  padding: 14px 20px;
+  background: var(--nb-yellow);
+  color: var(--nb-black);
+  border: var(--nb-border-thin);
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-display, 'Sora', sans-serif);
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: all 0.15s ease;
+  box-shadow: var(--nb-shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: var(--nb-yellow-hover);
+  box-shadow: var(--nb-shadow);
+  transform: translate(-1px, -1px);
+}
+
+.auth-button:active:not(:disabled) {
+  box-shadow: var(--nb-shadow-active);
+  transform: translate(1px, 1px);
+}
+
+.auth-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--nb-surface-alt);
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
+   STATUS MESSAGES
+   -------------------------------------------------------------------------- */
+.error-message {
+  padding: 12px 14px;
+  background: var(--nb-pink-light);
+  border: var(--nb-border-thin);
+  border-color: var(--nb-pink);
+  border-radius: var(--radius-md, 8px);
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  line-height: 1.4;
+}
+
+.error-container {
+  text-align: center;
+  padding: var(--space-md) 0;
+}
+
+.error-icon {
+  font-size: 44px;
+  display: block;
+  margin-bottom: var(--space-md);
+}
+
+.success-message {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+  background: var(--nb-mint-light);
+  border: var(--nb-border-thin);
+  border-color: var(--nb-mint);
+  border-radius: var(--radius-lg, 12px);
+}
+
+.success-message .icon {
+  font-size: 48px;
+  margin-bottom: var(--space-sm);
+  display: block;
+  color: #059669;
+}
+
+.success-message p {
+  margin: var(--space-xs) 0;
+  color: var(--nb-black);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.success-message-subtext {
+  font-size: 13px !important;
+  color: #475569 !important;
+  font-weight: 500 !important;
+  margin-top: 8px !important;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   LINKS & TOGGLES
+   -------------------------------------------------------------------------- */
+.auth-link {
+  text-align: center;
+  font-size: 14px;
+  color: #64748b;
+  margin-top: var(--space-sm);
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--nb-violet);
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0;
+  transition: all 0.15s ease;
+  display: inline;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+  color: var(--nb-black);
+}
+
+/* --------------------------------------------------------------------------
+   PASSWORD STRENGTH INDICATOR
+   -------------------------------------------------------------------------- */
+.password-strength {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.strength-bar.weak {
+  background: #ef4444;
+}
+
+.strength-bar.medium {
+  background: #f59e0b;
+}
+
+.strength-bar.strong {
+  background: #10b981;
+}
+
+/* --------------------------------------------------------------------------
+   SPINNER
+   -------------------------------------------------------------------------- */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid var(--nb-violet);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: var(--space-md) auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
+   DARK THEME & PREFERS COLOR SCHEME
+   -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  .auth-container {
+    background: #0f172a;
+  }
+
+  .auth-card {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 6px 6px 0px #020617;
+  }
+
+  .auth-card h1 {
+    color: #f8fafc;
+  }
+
+  .auth-card-description {
+    color: #94a3b8;
+  }
+
+  .form-group label {
+    color: #cbd5e1;
+  }
+
+  .form-group input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+  }
+
+  .form-group input:focus {
+    border-color: var(--nb-yellow);
+    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+  }
+
+  .auth-link {
+    color: #94a3b8;
+  }
+
+  .link-button {
+    color: #38bdf8;
+  }
+
+  .link-button:hover {
+    color: #ffffff;
+  }
+
+  .error-message {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #fca5a5;
+  }
+
+  .success-message {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+  }
+
+  .success-message p {
+    color: #f8fafc;
+  }
+
+  .success-message-subtext {
+    color: #94a3b8 !important;
+  }
+}
